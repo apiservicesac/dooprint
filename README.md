@@ -9,6 +9,10 @@ web interface, and prints what Odoo sends to USB and network receipt printers.
   jobs queued there.
 - Configured from its web interface; the command line only sets the port.
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="Dooprint web interface: a network receipt printer ready, with buttons to copy its address and print a test page" width="820">
+</p>
+
 ## How it connects to Odoo
 
 | Mode | When | How |
