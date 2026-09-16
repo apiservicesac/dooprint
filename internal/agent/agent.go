@@ -26,6 +26,9 @@ const (
 	requestTimeout    = 30 * time.Second
 	jobsPerRequest    = 5
 	reconnectDelay    = 5 * time.Second
+	forwardTimeout    = 15 * time.Second
+	// forwardMaxBody caps the answer of a forwarded request sent back to Odoo.
+	forwardMaxBody = 1 << 20
 )
 
 // Printers returns the detected printers as they are reported to Odoo.
@@ -71,8 +74,17 @@ type job struct {
 }
 
 type command struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id      int         `json:"id"`
+	Name    string      `json:"name"`
+	Payload httpRequest `json:"payload"`
+}
+
+// httpRequest is what Odoo asks the device to fetch on its network with the "http" command.
+type httpRequest struct {
+	URL     string            `json:"url"`
+	Method  string            `json:"method"`
+	Headers map[string]string `json:"headers"`
+	Body    string            `json:"body"`
 }
 
 func New(config Config, manager *printer.Manager, printers Printers) *Agent {
@@ -229,34 +241,72 @@ func (a *Agent) print(j job) {
 	}
 	a.mu.Unlock()
 
-	a.ack("job", j.Id, errorCode)
+	a.ack("job", j.Id, errorCode, "")
 }
 
 func (a *Agent) run(c command) {
 	logger.Infof("Command received from Odoo: %s", c.Name)
 	switch c.Name {
 	case "refresh":
-		a.ack("command", c.Id, "")
+		a.ack("command", c.Id, "", "")
 		a.heartbeat()
 	case "restart":
-		a.ack("command", c.Id, "")
+		a.ack("command", c.Id, "", "")
 		if a.Restart != nil {
 			go a.Restart()
 		}
+	case "http":
+		result, err := a.forward(c.Payload)
+		if err != nil {
+			a.ack("command", c.Id, err.Error(), "")
+		} else {
+			a.ack("command", c.Id, "", result)
+		}
 	default:
-		a.ack("command", c.Id, "unknown command")
+		a.ack("command", c.Id, "unknown command", "")
 	}
 }
 
-func (a *Agent) ack(kind string, id int, errorCode string) {
+// forward makes an HTTP request on the local network for Odoo and returns the status and the
+// body of the answer as JSON.
+func (a *Agent) forward(r httpRequest) (string, error) {
+	if r.URL == "" {
+		return "", fmt.Errorf("no url")
+	}
+	method := strings.ToUpper(r.Method)
+	if method == "" {
+		method = http.MethodGet
+	}
+	request, err := http.NewRequest(method, r.URL, strings.NewReader(r.Body))
+	if err != nil {
+		return "", err
+	}
+	for name, value := range r.Headers {
+		request.Header.Set(name, value)
+	}
+	response, err := (&http.Client{Timeout: forwardTimeout}).Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(response.Body, forwardMaxBody))
+	if err != nil {
+		return "", err
+	}
+	result, err := json.Marshal(map[string]any{"status": response.StatusCode, "body": string(body)})
+	return string(result), err
+}
+
+func (a *Agent) ack(kind string, id int, errorCode string, result string) {
 	var reply struct {
 		Error string `json:"error"`
 	}
 	if err := a.call("/dooprint/ack", map[string]any{
-		"token": a.config.Token,
-		"kind":  kind,
-		"id":    id,
-		"error": errorCode,
+		"token":  a.config.Token,
+		"kind":   kind,
+		"id":     id,
+		"error":  errorCode,
+		"result": result,
 	}, &reply); err != nil {
 		a.fail(fmt.Sprintf("%s %d handled but not confirmed: %v", kind, id, err))
 	}

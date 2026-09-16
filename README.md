@@ -24,6 +24,10 @@ To pair a device:
 
 The device and its printers show up in Odoo right away.
 
+Besides print jobs, Odoo can send the device commands: restart the service, rescan printers, or
+make an HTTP request on the device network and return the answer, to reach equipment Odoo cannot
+see. The Odoo modules live in [dooprint-odoo](https://github.com/apiservicesac/dooprint-odoo).
+
 ## Routes
 
 ```

@@ -54,7 +54,7 @@ func Register(service *app.Service, manager *printer.Manager) func(fiber.Router)
 				return fiber.NewError(http.StatusBadRequest, err.Error())
 			}
 			if service.Link == nil {
-				return fiber.NewError(http.StatusInternalServerError, "enlace no disponible")
+				return fiber.NewError(http.StatusInternalServerError, "Odoo link not available")
 			}
 			if err := service.Link.Pair(body.Pairing, body.Name, body.Mode); err != nil {
 				return fiber.NewError(http.StatusBadRequest, err.Error())
