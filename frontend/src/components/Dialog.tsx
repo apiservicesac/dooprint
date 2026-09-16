@@ -128,38 +128,38 @@ export default function Dialog({
               }`}
           >
             <div
-              className="absolute inset-0 bg-black/75"
+              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
               onClick={() => close()}
             />
 
-            <div className={`relative bg-white rounded-2xl w-full max-w-sm max-h-[calc(100vh-2rem)] shadow-xl overflow-y-auto overflow-x-hidden p-6 ${showTitleDivider ? "pt-4" : ""}`}>
-              <div className={`flex items-center justify-between  ${showTitleDivider ? "pb-3 mb-4 border-b border-gray-200" : "mb-5"}`}>
-                <div className="text-lg font-medium">{title}</div>
+            <div className="relative w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto overflow-x-hidden rounded-lg border border-border bg-card p-7 text-card-foreground shadow-xl">
+              <div className={`flex items-center justify-between ${showTitleDivider ? "mb-5 border-b border-border pb-4" : "mb-5"}`}>
+                <div className="text-lg font-semibold">{title}</div>
                 <CloseButton onClick={() => close()} />
               </div>
 
               <div>{children}</div>
 
               {actions.length > 0 && (
-                <div className="flex items-center gap-2 pt-4">
+                <div className="flex items-center gap-3 pt-6">
                   {actions.map((action) => {
                     const isActionLoading = loadingAction === action.name;
                     const defaultVariantClass =
                       action.variant === "secondary"
-                        ? "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                        ? "btn-secondary"
                         : action.variant === "danger"
-                          ? "border border-transparent bg-danger text-white hover:opacity-90"
-                          : "border border-transparent bg-odoo text-white hover:bg-odoo-dark";
+                          ? "btn-red"
+                          : "btn-primary";
 
                     return (
                       <button
                         key={action.name}
                         type="button"
                         disabled={Boolean(action.disabled) || isActionLoading || Boolean(loadingAction)}
-                        className={action.className ?? `flex-1 rounded-lg px-4 py-2 cursor-pointer text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${defaultVariantClass}`}
+                        className={action.className ?? `${defaultVariantClass} flex-1 sm:w-full`}
                         onClick={() => handleAction(action)}
                       >
-                        {isActionLoading ? "Loading..." : action.label}
+                        {isActionLoading ? "…" : action.label}
                       </button>
                     );
                   })}

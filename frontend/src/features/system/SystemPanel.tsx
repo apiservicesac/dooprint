@@ -1,15 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  AppleIcon,
-  FolderIcon,
-  MonitorIcon,
-  ServerIcon,
-  ShieldCheckIcon,
-  ShieldOffIcon,
-  TerminalIcon,
-  WifiIcon,
-} from 'lucide-react'
+import { AppleIcon, MonitorIcon, ServerIcon, ShieldCheckIcon, ShieldOffIcon, TerminalIcon } from 'lucide-react'
 import { GetTroubleshootInfo } from '@/../wailsjs/go/main/App'
 import { main } from '@/../wailsjs/go/models'
 import { AppContext } from '@/contexts/AppContext'
@@ -40,7 +31,7 @@ export default function SystemPanel() {
 
   return (
     <>
-      <Section icon={<ServerIcon size={20} />} title={t('device.title')}>
+      <Section title={t('device.title')}>
         <DataList
           rows={[
             [t('device.name'), app?.name ?? ''],
@@ -66,13 +57,13 @@ export default function SystemPanel() {
         />
       </Section>
 
-      <Section icon={<WifiIcon size={20} />} title={t('network.title')} description={t('network.description')}>
+      <Section title={t('network.title')} description={t('network.description')}>
         <DataList
           rows={[
-            [t('network.address'), <span className="font-mono text-xs">{app?.address}</span>],
+            [t('network.address'), <span className="text-sm tabular-nums">{app?.address}</span>],
             [t('network.port'), app ? String(app.port) : ''],
-            [t('network.localIp'), <span className="font-mono text-xs">{info?.localIp}</span>],
-            [t('network.subnet'), <span className="font-mono text-xs">{info?.subnet}</span>],
+            [t('network.localIp'), <span className="text-sm tabular-nums">{info?.localIp}</span>],
+            [t('network.subnet'), <span className="text-sm tabular-nums">{info?.subnet}</span>],
             [
               t('network.firewall'),
               <Badge variant={firewall ? 'warning' : 'muted'}>
@@ -85,10 +76,9 @@ export default function SystemPanel() {
         />
       </Section>
 
-      <Section icon={<FolderIcon size={20} />} title={t('install.title')}>
+      <Section title={t('install.title')}>
         <DataList
-          columns={1}
-          rows={[[t('install.path'), <span className="font-mono text-xs">{info?.execPath}</span>]]}
+          rows={[[t('install.path'), <span className="text-sm tabular-nums">{info?.execPath}</span>]]}
         />
       </Section>
     </>

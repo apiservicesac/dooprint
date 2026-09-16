@@ -109,11 +109,11 @@ export default function NetworkIpDialog({ openSignal }: { openSignal: number }) 
       onClose={cleanup}
       openSignal={openSignal}
     >
-      <p className="text-sm text-gray-500 mb-3 text-center">
+      <p className="mb-6 text-[15px] leading-6 text-muted-foreground">
         {t("dialog.description")}
       </p>
       <div
-        className="flex items-center justify-center gap-2 mb-3"
+        className="mb-2 flex items-center justify-center gap-2"
         onPasteCapture={handlePaste}
       >
         {ipParts.map((part, index) => (
@@ -129,19 +129,19 @@ export default function NetworkIpDialog({ openSignal }: { openSignal: number }) 
               type="text"
               inputMode="numeric"
               maxLength={3}
-              className="w-16 border border-gray-300 rounded-lg px-2 py-2 text-center text-sm focus:outline-none focus:ring-1 focus:ring-odoo-light focus:border-transparent"
+              className="h-12 w-16 rounded-md border border-neutral-300 bg-background text-center text-base focus:border-neutral-500 focus:outline-none focus:ring-4 focus:ring-neutral-200 dark:border-neutral-600 dark:focus:ring-neutral-700"
               onChange={(event) => updatePart(index, event.target.value)}
               onKeyDown={(event) => handleKeyDown(event, index)}
             />
 
-            {index < 3 && (<span className="text-gray-400 font-medium">.</span>)}
+            {index < 3 && (<span className="font-medium text-muted-foreground">.</span>)}
           </div>
         ))}
       </div>
 
       {errorMessage && (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 rounded-md text-sm px-4 mb-3 py-3 relative"
+          className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-danger dark:bg-red-900/20"
           role="alert"
         >
           {errorMessage}

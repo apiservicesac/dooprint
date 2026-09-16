@@ -3,17 +3,17 @@ import { cn } from '@/lib/utils'
 type Tone = 'success' | 'danger' | 'warning' | 'muted'
 
 const TONES: Record<Tone, string> = {
-  success: 'bg-brand-teal',
-  danger: 'bg-danger',
-  warning: 'bg-yellow-500',
-  muted: 'bg-muted-foreground/40',
+  success: 'bg-emerald-500',
+  danger: 'bg-red-500',
+  warning: 'bg-amber-500',
+  muted: 'bg-zinc-300 dark:bg-zinc-600',
 }
 
 /** Status at a glance: a colored dot and its label. */
 export default function StatusDot({ tone, label, className }: { tone: Tone; label: string; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap', className)}>
-      <span className={cn('inline-block h-2.5 w-2.5 rounded-full', TONES[tone])} />
+    <span className={cn('inline-flex items-center gap-2 whitespace-nowrap text-sm text-muted-foreground', className)}>
+      <span className={cn('inline-block h-2 w-2 rounded-full', TONES[tone])} />
       {label}
     </span>
   )

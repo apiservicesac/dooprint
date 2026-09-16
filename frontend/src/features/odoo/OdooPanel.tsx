@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HouseIcon, LinkIcon, PlugZapIcon, RadioTowerIcon, Unlink2Icon } from 'lucide-react'
+import { HouseIcon, RadioTowerIcon, Unlink2Icon } from 'lucide-react'
 import { OdooStatus, PairWithOdoo, UnpairFromOdoo } from '@/../wailsjs/go/main/App'
 import { main } from '@/../wailsjs/go/models'
 import { AppContext } from '@/contexts/AppContext'
@@ -54,8 +54,8 @@ export default function OdooPanel() {
 
   if (!status) {
     return (
-      <Section icon={<PlugZapIcon size={20} />} title={t('connect.title')}>
-        <p className="text-sm text-muted-foreground">{t('common:loading')}</p>
+      <Section title={t('connect.title')}>
+        <p className="py-6 text-[15px] text-muted-foreground">{t('common:loading')}</p>
       </Section>
     )
   }
@@ -82,12 +82,11 @@ export default function OdooPanel() {
   return (
     <>
       <Section
-        icon={<PlugZapIcon size={20} />}
         title={status.boxName || t('common:device')}
         description={status.odooUrl}
         actions={<StatusDot tone={busTone} label={t(`bus.${status.busState}`, { defaultValue: status.busState })} />}
       >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
           <Stat
             label={t('status.mode')}
             value={
@@ -103,17 +102,17 @@ export default function OdooPanel() {
         </div>
 
         {status.lastError && (
-          <p className="mt-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-danger dark:bg-red-900/20">
+          <p className="mt-8 rounded-md bg-red-50 px-4 py-3 text-sm text-danger dark:bg-red-900/20">
             {status.lastError}
           </p>
         )}
 
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="mt-8 border-t border-border pt-6 text-[15px] leading-6 text-muted-foreground">
           {status.mode === 'agent' ? t('status.agentSummary') : t('status.localSummary')}
         </p>
       </Section>
 
-      <Section icon={<Unlink2Icon size={20} />} title={t('unpair.title')} description={t('unpair.description')}>
+      <Section title={t('unpair.title')} description={t('unpair.description')}>
         <Button variant="destructive" onClick={onUnpair} icon={<Unlink2Icon size={14} />}>
           {t('unpair.action')}
         </Button>
@@ -152,14 +151,14 @@ function PairForm({ defaultName, onPaired, onError }: PairFormProps) {
   }
 
   return (
-    <Section icon={<LinkIcon size={20} />} title={t('connect.title')} description={t('connect.description')}>
-      <div className="grid gap-4">
+    <Section title={t('connect.title')} description={t('connect.description')}>
+      <div className="grid gap-6">
         <Field label={t('connect.token')} hint={t('connect.tokenHint')}>
           <Input
             value={pairing}
             onChange={(e) => setPairing(e.target.value)}
             placeholder="https://odoo.empresa.com?token=…"
-            className="font-mono"
+            className="tabular-nums"
           />
         </Field>
 
@@ -167,8 +166,8 @@ function PairForm({ defaultName, onPaired, onError }: PairFormProps) {
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
 
-        <fieldset className="grid gap-2">
-          <legend className="mb-1 text-sm font-medium">{t('connect.modeQuestion')}</legend>
+        <fieldset className="grid gap-3">
+          <legend className="mb-2 text-sm font-medium">{t('connect.modeQuestion')}</legend>
           <RadioCard
             checked={mode === 'agent'}
             onChange={() => setMode('agent')}

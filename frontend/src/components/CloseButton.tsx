@@ -5,7 +5,7 @@ interface CloseButtonProps {
 export default function CloseButton({ onClick }: CloseButtonProps) {
   return (
     <button
-      className="w-7 h-7 rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 transition-colors cursor-pointer"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       onClick={onClick}
     >
       <svg

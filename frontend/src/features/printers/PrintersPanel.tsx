@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PlusIcon, PrinterIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import NetworkIpDialog from '@/components/NetworkIpDialog'
 import { PrinterContext } from '@/contexts/PrinterContext'
 import Button from '@/components/ui/button'
@@ -25,12 +25,11 @@ export default function PrintersPanel() {
   return (
     <>
       <Section
-        icon={<PrinterIcon size={20} />}
         title={t('title')}
         description={t('description')}
         actions={addButton}
       >
-        {!printers && !fetchError && <p className="text-sm text-muted-foreground">{t('searching')}</p>}
+        {!printers && !fetchError && <p className="py-6 text-[15px] text-muted-foreground">{t('searching')}</p>}
 
         {printers && available.length === 0 && unavailable.length === 0 && (
           <EmptyState title={t('empty.title')} description={t('empty.description')} action={addButton} />
@@ -46,16 +45,16 @@ export default function PrintersPanel() {
               />
             ))}
             {unavailable.map((printer) => (
-              <li key={printer.name} className="py-4">
-                <p className="font-medium">{printer.name}</p>
-                <p className="mt-1 text-sm text-danger">{printer.errorMsg}</p>
+              <li key={printer.name} className="py-6">
+                <p className="text-base font-medium">{printer.name}</p>
+                <p className="mt-2 text-sm text-danger">{printer.errorMsg}</p>
               </li>
             ))}
           </ul>
         )}
 
         {errorMessage && (
-          <p className="mt-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-danger dark:bg-red-900/20">{errorMessage}</p>
+          <p className="mt-6 rounded-md bg-red-50 px-4 py-3 text-sm text-danger dark:bg-red-900/20">{errorMessage}</p>
         )}
       </Section>
 

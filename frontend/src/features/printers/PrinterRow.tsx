@@ -56,23 +56,23 @@ export default function PrinterRow({ printer, status }: PrinterRowProps) {
   }
 
   return (
-    <li className="py-4 first:pt-0 last:pb-0">
-      <div className="flex items-start justify-between gap-4">
+    <li className="py-6 first:pt-1 last:pb-1">
+      <div className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="truncate font-medium">{printer.name}</span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="truncate text-base font-medium text-foreground">{printer.name}</span>
             <Badge variant={printer.isLAN ? 'default' : 'muted'}>
               {printer.isLAN ? <NetworkIcon size={12} /> : <UsbIcon size={12} />}
               {printer.isLAN ? t('type.lan') : t('type.usb')}
             </Badge>
             {printer.type === 'label' && <Badge variant="muted">{t('type.label')}</Badge>}
           </div>
-          <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{printer.ip}</p>
+          <p className="mt-2 break-all text-sm tabular-nums text-muted-foreground">{printer.ip}</p>
         </div>
         <StatusDot tone={tone} label={label} />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-3">
         <Button
           variant="outline"
           onClick={onCopy}
@@ -84,7 +84,7 @@ export default function PrinterRow({ printer, status }: PrinterRowProps) {
           {t('test')}
         </Button>
         {printer.isLAN && (
-          <Button variant="destructive" onClick={onRemove} icon={<Trash2Icon size={14} />} className="sm:ms-auto">
+          <Button variant="outline" onClick={onRemove} icon={<Trash2Icon size={14} />} className="text-red-600! sm:ms-auto">
             {t('common:remove')}
           </Button>
         )}
