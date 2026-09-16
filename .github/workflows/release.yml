@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  web:
+    name: Web interface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: frontend/dist
+
+  linux:
+    name: Linux binary
+    needs: web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: internal/webui/dist
+
+      - name: Install libusb
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev pkg-config
+
+      - name: Build
+        run: CGO_ENABLED=1 go build -trimpath -ldflags "-s -w" -o dooprint-linux-amd64 ./cmd/dooprint
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dooprint-linux-amd64
+          path: dooprint-linux-amd64
+
+  windows:
+    name: Windows binary
+    needs: web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: internal/webui/dist
+
+      - name: Install mingw
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 pkg-config
+
+      # libusb is built for Windows and linked statically, so the .exe needs no DLL.
+      - name: Build libusb for Windows
+        run: |
+          curl -sL https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2 -o libusb.tar.bz2
+          mkdir libusb && tar -xjf libusb.tar.bz2 -C libusb --strip-components=1
+          cd libusb
+          ./configure --host=x86_64-w64-mingw32 --prefix=/opt/libusb-win --enable-static --disable-shared
+          make -j4 && sudo make install
+
+      - name: Build
+        env:
+          CGO_ENABLED: 1
+          GOOS: windows
+          GOARCH: amd64
+          CC: x86_64-w64-mingw32-gcc
+          PKG_CONFIG_PATH: /opt/libusb-win/lib/pkgconfig
+        run: go build -trimpath -ldflags "-s -w" -o dooprint-windows-amd64.exe ./cmd/dooprint
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dooprint-windows-amd64
+          path: dooprint-windows-amd64.exe
+
+  release:
+    name: GitHub release
+    needs: [linux, windows]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/dooprint-linux-amd64
+            artifacts/dooprint-windows-amd64.exe
+          generate_release_notes: true

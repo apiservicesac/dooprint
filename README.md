@@ -46,6 +46,14 @@ Only Docker is needed:
 
 Both binaries include USB support and the web interface.
 
+On GitHub, the **CI** workflow vets and tests every push and pull request, and the **Release**
+workflow builds `dooprint-linux-amd64` and `dooprint-windows-amd64.exe` and attaches them to a
+release when a `v*` tag is pushed:
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
+
 ## Run
 
 ```bash
