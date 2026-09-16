@@ -1,0 +1,228 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ─── Static theme tokens ─────────────────────────────────────────────────── */
+@theme {
+  --font-sans:       'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-instrument: 'Instrument Serif', Georgia, serif;
+  --font-serif:      Georgia, serif;
+
+  --spacing-4_5: 1.125rem;
+
+  --opacity-1:   0.01;
+  --opacity-2_5: 0.025;
+  --opacity-7_5: 0.075;
+  --opacity-15:  0.15;
+}
+
+/* ─── Dynamic tokens that reference CSS variables ─────────────────────────── */
+@theme inline {
+  /* Colors */
+  --color-border:               hsl(var(--border));
+  --color-input:                hsl(var(--input));
+  --color-ring:                 hsl(var(--ring));
+  --color-background:           hsl(var(--background));
+  --color-foreground:           hsl(var(--foreground));
+
+  --color-primary:              hsl(var(--primary));
+  --color-primary-foreground:   hsl(var(--primary-foreground));
+
+  --color-secondary:            hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-danger:               hsl(var(--danger));
+  --color-danger-foreground:    hsl(var(--danger-foreground));
+
+  --color-muted:                hsl(var(--muted));
+  --color-muted-foreground:     hsl(var(--muted-foreground));
+
+  --color-accent:               hsl(var(--accent));
+  --color-accent-foreground:    hsl(var(--accent-foreground));
+
+  --color-popover:              hsl(var(--popover));
+  --color-popover-foreground:   hsl(var(--popover-foreground));
+
+  --color-card:                 hsl(var(--card));
+  --color-card-foreground:      hsl(var(--card-foreground));
+
+  /* ── Brand tokens ── */
+  /* Orange #F28A54  →  hsl(20 86% 64%) */
+  --color-brand-orange:         hsl(var(--brand-orange));
+  --color-brand-orange-light:   hsl(var(--brand-orange-light));
+  --color-brand-orange-dark:    hsl(var(--brand-orange-dark));
+
+  /* Teal   #2A7F8A  →  hsl(187 53% 35%) */
+  --color-brand-teal:           hsl(var(--brand-teal));
+  --color-brand-teal-light:     hsl(var(--brand-teal-light));
+  --color-brand-teal-dark:      hsl(var(--brand-teal-dark));
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+/* ─── CSS variables ───────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --background:           0 0% 100%;
+    --foreground:           20 14.3% 4.1%;
+
+    --card:                 0 0% 100%;
+    --card-foreground:      20 14.3% 4.1%;
+
+    --popover:              0 0% 100%;
+    --popover-foreground:   20 14.3% 4.1%;
+
+    --primary:              20 86% 64%;
+    --primary-foreground:   0 0% 100%;
+
+    --secondary:            60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+
+    --muted:                60 4.8% 95.9%;
+    --muted-foreground:     25 5.3% 44.7%;
+
+    --accent:               20 100% 96%;
+    --accent-foreground:    20 40% 20%;
+
+    --danger:               0 84.2% 60.2%;
+    --danger-foreground:    60 9.1% 97.8%;
+
+    --border:               20 5.9% 90%;
+    --input:                20 5.9% 90%;
+    --ring:                 187 53% 35%;
+
+    --radius:               0.5rem;
+
+    /* ── Brand scale ── */
+    --brand-orange:         20 86% 64%;   /* #F28A54 */
+    --brand-orange-light:   20 100% 95%;  /* soft bg  */
+    --brand-orange-dark:    20 70% 45%;   /* hover / shadow */
+
+    --brand-teal:           187 53% 35%;  /* #2A7F8A */
+    --brand-teal-light:     187 53% 95%;  /* soft bg  */
+    --brand-teal-dark:      187 53% 25%;  /* hover / shadow */
+  }
+
+  .dark {
+    --background:           0 0% 7%;
+    --foreground:           0 0% 95%;
+
+    --card:                 0 0% 10%;
+    --card-foreground:      0 0% 95%;
+
+    --popover:              0 0% 10%;
+    --popover-foreground:   0 0% 95%;
+
+    --primary:              20 86% 64%;
+    --primary-foreground:   0 0% 100%;
+
+    --secondary:            0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted:                0 0% 15%;
+    --muted-foreground:     0 0% 58%;
+
+    --accent:               20 40% 14%;
+    --accent-foreground:    20 86% 72%;
+
+    --danger:               0 72% 51%;
+    --danger-foreground:    0 0% 98%;
+
+    --border:               0 0% 18%;
+    --input:                0 0% 18%;
+    --ring:                 187 53% 45%;
+
+    --brand-orange:         20 86% 64%;
+    --brand-orange-light:   20 60% 12%;
+    --brand-orange-dark:    20 70% 45%;
+
+    --brand-teal:           187 53% 45%;
+    --brand-teal-light:     187 40% 12%;
+    --brand-teal-dark:      187 53% 30%;
+  }
+
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1, 'cv11' 1, 'ss01' 1;
+  }
+}
+
+/* ─── Component classes ───────────────────────────────────────────────────── */
+@layer components {
+  .btn {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border px-3 py-1 w-full sm:w-fit active:[box-shadow:none] hover:[box-shadow:none] min-h-9;
+  }
+  .btn-purple {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9;
+    @apply bg-purple-600 border-transparent text-white [box-shadow:hsl(273,_93%,_30%)_0_-2px_0_0_inset] hover:bg-[hsl(273,_93%,_35%)] active:[box-shadow:none] hover:[box-shadow:none] px-3 w-full sm:w-fit;
+  }
+  .btn-emerald {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9;
+    @apply bg-emerald-600 border-transparent text-white [box-shadow:hsl(160,_93%,_25%)_0_-2px_0_0_inset] hover:bg-[hsl(160,_93%,_30%)] active:[box-shadow:none] hover:[box-shadow:none] px-3 w-full sm:w-fit;
+  }
+  .btn-red {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9;
+    @apply bg-red-600 border-transparent text-white [box-shadow:hsl(0,_93%,_25%)_0_-2px_0_0_inset] hover:bg-[hsl(0,_93%,_30%)] active:[box-shadow:none] hover:[box-shadow:none] px-3 w-full sm:w-fit;
+  }
+  .btn-primary {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9 select-none transition-colors;
+    @apply bg-brand-orange border-transparent text-white [box-shadow:hsl(var(--brand-orange-dark))_0_-3px_0_0_inset] hover:bg-brand-orange-dark active:[box-shadow:none] hover:[box-shadow:none] px-3 h-9 w-full sm:w-fit;
+  }
+  .btn-teal {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9 select-none transition-colors;
+    @apply bg-brand-teal border-transparent text-white [box-shadow:hsl(var(--brand-teal-dark))_0_-3px_0_0_inset] hover:bg-brand-teal-dark active:[box-shadow:none] hover:[box-shadow:none] px-3 h-9 w-full sm:w-fit;
+  }
+  .btn-secondary {
+    @apply font-sans font-medium text-sm tracking-tight cursor-pointer disabled:cursor-not-allowed flex gap-2 shrink-0 items-center justify-center transition duration-75 disabled:opacity-50 rounded border min-h-9 px-3;
+    @apply text-neutral-700 border-neutral-300 bg-white [box-shadow:rgba(0,0,0,0.1)_0_-3px_0_0_inset] hover:bg-neutral-100 hover:[box-shadow:none];
+  }
+  .title {
+    @apply text-wrap! leading-[1.25]! text-4xl md:text-5xl font-serif text-zinc-900 dark:text-zinc-50;
+  }
+}
+
+@layer components {
+  .dark .btn-secondary {
+    @apply text-zinc-300 border-zinc-600 bg-zinc-800 hover:bg-zinc-700;
+    box-shadow: rgba(0,0,0,0.4) 0 -2px 0 0 inset;
+  }
+  .dark .btn-secondary:hover { box-shadow: none; }
+
+  .dark .btn-red {
+    box-shadow: hsl(0, 80%, 20%) 0 -2px 0 0 inset;
+  }
+  .dark .btn-red:hover,
+  .dark .btn-red:active { box-shadow: none; }
+
+  .dark .btn-purple {
+    box-shadow: hsl(273, 80%, 20%) 0 -2px 0 0 inset;
+  }
+  .dark .btn-purple:hover,
+  .dark .btn-purple:active { box-shadow: none; }
+
+  .dark .btn-emerald {
+    box-shadow: hsl(160, 80%, 15%) 0 -2px 0 0 inset;
+  }
+  .dark .btn-emerald:hover,
+  .dark .btn-emerald:active { box-shadow: none; }
+
+  .dark .btn-primary {
+    box-shadow: hsl(var(--brand-orange-dark)) 0 -3px 0 0 inset;
+  }
+  .dark .btn-primary:hover,
+  .dark .btn-primary:active { box-shadow: none; }
+
+  .dark .btn-teal {
+    box-shadow: hsl(var(--brand-teal-dark)) 0 -3px 0 0 inset;
+  }
+  .dark .btn-teal:hover,
+  .dark .btn-teal:active { box-shadow: none; }
+}
+
+a.link { @apply underline transition hover:opacity-75; }

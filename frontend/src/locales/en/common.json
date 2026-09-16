@@ -1,0 +1,20 @@
+{
+  "appName": "dooprint",
+  "device": "Print device",
+  "running": "Running",
+  "stopped": "Stopped",
+  "loading": "Loading…",
+  "copy": "Copy address",
+  "copied": "Copied",
+  "cancel": "Cancel",
+  "save": "Save",
+  "remove": "Remove",
+  "language": "Language",
+  "darkMode": "Dark mode",
+  "lightMode": "Light mode",
+  "tabs": {
+    "printers": "Printers",
+    "odoo": "Odoo",
+    "system": "System"
+  }
+}

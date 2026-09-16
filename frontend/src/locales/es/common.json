@@ -1,0 +1,20 @@
+{
+  "appName": "dooprint",
+  "device": "Equipo de impresión",
+  "running": "En marcha",
+  "stopped": "Detenido",
+  "loading": "Cargando…",
+  "copy": "Copiar dirección",
+  "copied": "Copiada",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "remove": "Quitar",
+  "language": "Idioma",
+  "darkMode": "Modo oscuro",
+  "lightMode": "Modo claro",
+  "tabs": {
+    "printers": "Ticketeras",
+    "odoo": "Odoo",
+    "system": "Sistema"
+  }
+}

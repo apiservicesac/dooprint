@@ -1,0 +1,24 @@
+{
+  "title": "Ticketeras",
+  "description": "Las conectadas por USB y las agregadas por IP.",
+  "add": "Agregar de red",
+  "searching": "Buscando ticketeras…",
+  "empty": {
+    "title": "Aún no hay ticketeras",
+    "description": "Conecta una por USB, o agrega una de red con su IP."
+  },
+  "type": { "lan": "Red", "usb": "USB", "label": "Etiquetas" },
+  "status": { "ready": "Lista", "checking": "Comprobando", "offline": "Sin respuesta" },
+  "test": "Imprimir prueba",
+  "testSent": "Prueba enviada a {{name}}",
+  "testFailed": "Falló la prueba de impresión",
+  "removed": "Ticketera {{ip}} quitada",
+  "copyFailed": "No se pudo copiar",
+  "dialog": {
+    "title": "Agregar ticketera de red",
+    "description": "Escribe la IP de la ticketera. Debe estar encendida y en esta misma red.",
+    "submit": "Agregar",
+    "invalidPaste": "La dirección pegada no es una IP válida",
+    "invalid": "Escribe una IP válida"
+  }
+}

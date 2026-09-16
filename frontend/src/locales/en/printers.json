@@ -1,0 +1,24 @@
+{
+  "title": "Printers",
+  "description": "USB printers and the ones added by IP.",
+  "add": "Add network printer",
+  "searching": "Looking for printers…",
+  "empty": {
+    "title": "No printers yet",
+    "description": "Connect one over USB, or add a network one with its IP."
+  },
+  "type": { "lan": "Network", "usb": "USB", "label": "Labels" },
+  "status": { "ready": "Ready", "checking": "Checking", "offline": "No answer" },
+  "test": "Test print",
+  "testSent": "Test sent to {{name}}",
+  "testFailed": "Test print failed",
+  "removed": "Printer {{ip}} removed",
+  "copyFailed": "Could not copy",
+  "dialog": {
+    "title": "Add network printer",
+    "description": "Type the printer IP. It must be on and in this same network.",
+    "submit": "Add",
+    "invalidPaste": "The pasted address is not a valid IP",
+    "invalid": "Type a valid IP"
+  }
+}

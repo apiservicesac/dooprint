@@ -1,0 +1,29 @@
+{
+  "device": {
+    "title": "Device",
+    "name": "Name",
+    "version": "Version",
+    "os": "System",
+    "server": "ePOS server"
+  },
+  "network": {
+    "title": "Network",
+    "description": "What Odoo needs to reach this device.",
+    "address": "Address",
+    "port": "Port",
+    "localIp": "Local IP",
+    "subnet": "Subnet",
+    "firewall": "Firewall",
+    "zone": "Zone",
+    "noFirewall": "none detected"
+  },
+  "install": {
+    "title": "Installation",
+    "path": "Executable"
+  },
+  "os": {
+    "linux": "Linux",
+    "windows": "Windows",
+    "darwin": "macOS"
+  }
+}

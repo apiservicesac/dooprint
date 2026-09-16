@@ -1,0 +1,42 @@
+{
+  "connect": {
+    "title": "Conectar con Odoo",
+    "description": "En Odoo, abre dooprint › Equipos y pulsa Conectar para copiar el token de emparejamiento.",
+    "token": "Token de emparejamiento",
+    "name": "Nombre de este equipo",
+    "nameHint": "Con este nombre aparecerá en Odoo.",
+    "modeQuestion": "¿Cómo llegan los trabajos?",
+    "submit": "Conectar",
+    "paired": "Equipo emparejado con Odoo",
+    "failed": "No se pudo emparejar",
+    "tokenHint": "Pega la cadena completa que muestra Odoo: ya incluye su dirección."
+  },
+  "mode": {
+    "agent": "Agente",
+    "agentHint": "Este equipo recoge sus trabajos de Odoo. Sirve con Odoo fuera de esta red y no hace falta abrir puertos.",
+    "local": "Local",
+    "localHint": "Odoo envía el trabajo a este equipo. Solo si Odoo está en esta misma red."
+  },
+  "status": {
+    "mode": "Modo",
+    "printed": "Impresos",
+    "failed": "Con error",
+    "lastSeen": "Último contacto",
+    "agentSummary": "Este equipo recoge sus trabajos de Odoo y los imprime en cuanto llegan.",
+    "localSummary": "Odoo envía los trabajos a este equipo, que debe estar en su misma red."
+  },
+  "unpair": {
+    "title": "Desvincular",
+    "description": "El equipo dejará de recibir trabajos de este Odoo.",
+    "action": "Desvincular de Odoo",
+    "confirm": "¿Desvincular este equipo de Odoo?",
+    "done": "Equipo desvinculado",
+    "failed": "No se pudo desvincular"
+  },
+  "bus": {
+    "connected": "Conectado",
+    "disconnected": "Sin conexión",
+    "connecting": "Conectando…",
+    "off": "Sin agente"
+  }
+}

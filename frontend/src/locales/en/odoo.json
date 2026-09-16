@@ -1,0 +1,42 @@
+{
+  "connect": {
+    "title": "Connect to Odoo",
+    "description": "In Odoo, open dooprint › Devices and click Connect to copy the pairing token.",
+    "token": "Pairing token",
+    "name": "Name of this device",
+    "nameHint": "It will show up in Odoo with this name.",
+    "modeQuestion": "How do jobs arrive?",
+    "submit": "Connect",
+    "paired": "Device paired with Odoo",
+    "failed": "Could not pair",
+    "tokenHint": "Paste the whole string shown by Odoo: it already includes its address."
+  },
+  "mode": {
+    "agent": "Agent",
+    "agentHint": "This device picks up its jobs from Odoo. Works with Odoo outside this network, with no ports to open.",
+    "local": "Local",
+    "localHint": "Odoo sends the job to this device. Only if Odoo is on this same network."
+  },
+  "status": {
+    "mode": "Mode",
+    "printed": "Printed",
+    "failed": "Failed",
+    "lastSeen": "Last contact",
+    "agentSummary": "This device picks up its jobs from Odoo and prints them as they arrive.",
+    "localSummary": "Odoo sends the jobs to this device, which must be on its same network."
+  },
+  "unpair": {
+    "title": "Unpair",
+    "description": "The device will stop receiving jobs from this Odoo.",
+    "action": "Unpair from Odoo",
+    "confirm": "Unpair this device from Odoo?",
+    "done": "Device unpaired",
+    "failed": "Could not unpair"
+  },
+  "bus": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting…",
+    "off": "No agent"
+  }
+}
