@@ -67,7 +67,7 @@ sudo ./install.sh
 
 It installs `/usr/local/bin/dooprint` as the **dooprint** systemd service, running as its own
 `dooprint` user with the configuration in `/var/lib/dooprint`, and gives that user access to USB
-receipt printers. It also removes the old `obox-headless` service if it finds one.
+receipt printers.
 
 On a server without a browser, pair it from the command line:
 

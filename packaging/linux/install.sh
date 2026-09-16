@@ -51,13 +51,6 @@ if [[ ! -f dooprint ]]; then
     exit 1
 fi
 
-# The old obox-headless used the same port.
-if [[ -f /etc/systemd/system/obox-headless.service ]]; then
-    echo "Removing the old obox-headless service..."
-    systemctl disable --now obox-headless || true
-    rm -f /etc/systemd/system/obox-headless.service /usr/local/bin/obox-headless
-fi
-
 echo "Installing libusb and curl..."
 if command -v apt-get >/dev/null; then
     apt-get install -y -qq libusb-1.0-0 curl >/dev/null
