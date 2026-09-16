@@ -2,9 +2,9 @@ package printer
 
 import (
 	"encoding/base64"
-	"github.com/apiservicesac/dooprint/internal/logger"
 	"errors"
 	"fmt"
+	"github.com/apiservicesac/dooprint/internal/logger"
 	"strings"
 )
 

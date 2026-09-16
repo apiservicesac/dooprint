@@ -12,12 +12,17 @@ var log = logrus.New()
 
 var logDir string
 
-func InitLogger() {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		Fatalf("Failed to get user config dir: %v", err)
+// InitLogger writes the logs to rotating files in dir/logs, or in the user config folder when dir
+// is empty. Without it they go to standard output.
+func InitLogger(dir string) {
+	if dir == "" {
+		base, err := os.UserConfigDir()
+		if err != nil {
+			Fatalf("Failed to get user config dir: %v", err)
+		}
+		dir = filepath.Join(base, "dooprint")
 	}
-	logDir = filepath.Join(dir, "dooprint", "logs")
+	logDir = filepath.Join(dir, "logs")
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		Fatalf("Failed to create log directory: %v", err)
 	}

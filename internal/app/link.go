@@ -44,11 +44,11 @@ func (l *Link) startLocked(link config.OdooLink) {
 		Mode:    link.Mode,
 		Name:    link.Name,
 	}, l.service.Manager, l.reportedPrinters)
-	// The restart command from Odoo ends the process; systemd (or the Windows service) starts it
-	// again.
+	// The restart command from Odoo ends the process; systemd or the Windows service recovery
+	// starts it again. A non-zero code is what the Windows service manager treats as a failure.
 	l.worker.Restart = func() {
 		logger.Infof("Restart requested from Odoo")
-		os.Exit(0)
+		os.Exit(1)
 	}
 	l.done = make(chan struct{})
 	go l.worker.Run(l.done)

@@ -1,0 +1,20 @@
+[Unit]
+Description=Dooprint print service for Odoo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=dooprint
+Group=dooprint
+# plugdev and lp give access to USB receipt printers.
+SupplementaryGroups=plugdev lp
+ExecStart=/usr/local/bin/dooprint -port 4547 -data-dir /var/lib/dooprint
+Restart=always
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/dooprint
+
+[Install]
+WantedBy=multi-user.target

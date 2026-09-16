@@ -52,13 +52,19 @@ type Manager struct {
 	Data AppConfig
 }
 
-func NewManager() (*Manager, error) {
-	base, err := os.UserConfigDir()
-	if err != nil {
-		return nil, fmt.Errorf("cannot locate user config dir: %w", err)
-	}
+// Dir is where the configuration lives. Empty means the dooprint folder of the user config
+// directory; the installers set it, since a service has no user profile of its own.
+var Dir string
 
-	dir := filepath.Join(base, AppName)
+func NewManager() (*Manager, error) {
+	dir := Dir
+	if dir == "" {
+		base, err := os.UserConfigDir()
+		if err != nil {
+			return nil, fmt.Errorf("cannot locate user config dir: %w", err)
+		}
+		dir = filepath.Join(base, AppName)
+	}
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, fmt.Errorf("cannot create config dir: %w", err)
 	}

@@ -4,16 +4,66 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build again (e.g. v1.2.0)
+        required: true
 
 permissions:
   contents: write
 
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
 jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      # The tag and the VERSION file must agree, so the binaries report the released version.
+      - name: Check version
+        id: version
+        run: |
+          version="${TAG#v}"
+          file="$(tr -d '[:space:]' < VERSION)"
+          if [ "$version" != "$file" ]; then
+            echo "::error::Tag $TAG does not match VERSION ($file)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
+
+      - name: Release notes
+        run: |
+          awk -v v="${TAG#v}" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found && /^\[.*\]: / { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release ${TAG}." > notes.md
+          cat notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notes
+          path: notes.md
+
   web:
     name: Web interface
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
 
       - uses: actions/setup-node@v4
         with:
@@ -31,11 +81,15 @@ jobs:
           path: frontend/dist
 
   linux:
-    name: Linux binary
-    needs: web
+    name: Linux
+    needs: [prepare, web]
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
 
       - uses: actions/setup-go@v5
         with:
@@ -50,19 +104,31 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev pkg-config
 
       - name: Build
-        run: CGO_ENABLED=1 go build -trimpath -ldflags "-s -w" -o dooprint-linux-amd64 ./cmd/dooprint
+        run: |
+          mkdir -p dist
+          CGO_ENABLED=1 go build -trimpath \
+            -ldflags "-s -w -X github.com/apiservicesac/dooprint/internal/app.Version=$VERSION" \
+            -o dist/dooprint ./cmd/dooprint
+          ./dist/dooprint -version
+
+      - name: Package
+        run: make package-linux VERSION=$VERSION
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dooprint-linux-amd64
-          path: dooprint-linux-amd64
+          name: linux
+          path: dist/dooprint-${{ env.VERSION }}-linux-amd64.tar.gz
 
   windows:
-    name: Windows binary
-    needs: web
+    name: Windows
+    needs: [prepare, web]
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
 
       - uses: actions/setup-go@v5
         with:
@@ -79,9 +145,8 @@ jobs:
       # libusb is built for Windows and linked statically, so the .exe needs no DLL.
       - name: Build libusb for Windows
         run: |
-          curl -sL https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2 -o libusb.tar.bz2
-          mkdir libusb && tar -xjf libusb.tar.bz2 -C libusb --strip-components=1
-          cd libusb
+          curl -sL https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2 | tar -xj
+          cd libusb-1.0.27
           ./configure --host=x86_64-w64-mingw32 --prefix=/opt/libusb-win --enable-static --disable-shared
           make -j4 && sudo make install
 
@@ -92,27 +157,45 @@ jobs:
           GOARCH: amd64
           CC: x86_64-w64-mingw32-gcc
           PKG_CONFIG_PATH: /opt/libusb-win/lib/pkgconfig
-        run: go build -trimpath -ldflags "-s -w" -o dooprint-windows-amd64.exe ./cmd/dooprint
+        run: |
+          mkdir -p dist
+          go build -trimpath \
+            -ldflags "-s -w -X github.com/apiservicesac/dooprint/internal/app.Version=$VERSION" \
+            -o dist/dooprint.exe ./cmd/dooprint
+
+      - name: Installer
+        run: make installer VERSION=$VERSION
+
+      - name: Portable executable
+        run: cp dist/dooprint.exe dist/dooprint-$VERSION-windows-amd64.exe
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dooprint-windows-amd64
-          path: dooprint-windows-amd64.exe
+          name: windows
+          path: |
+            dist/dooprint-${{ env.VERSION }}-windows-amd64-setup.exe
+            dist/dooprint-${{ env.VERSION }}-windows-amd64.exe
 
   release:
     name: GitHub release
-    needs: [linux, windows]
-    if: startsWith(github.ref, 'refs/tags/')
+    needs: [prepare, linux, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: dist
           merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum dooprint-* > SHA256SUMS && cat SHA256SUMS
 
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.TAG }}
+          name: Dooprint ${{ env.TAG }}
+          body_path: dist/notes.md
+          prerelease: ${{ needs.prepare.outputs.prerelease == 'true' }}
           files: |
-            artifacts/dooprint-linux-amd64
-            artifacts/dooprint-windows-amd64.exe
-          generate_release_notes: true
+            dist/dooprint-*
+            dist/SHA256SUMS

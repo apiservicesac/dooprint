@@ -5,9 +5,13 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   go:
-    name: Go vet and tests
+    name: Go format, vet and tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +26,9 @@ jobs:
       # The web interface is embedded at build time; a placeholder is enough to compile.
       - name: Web interface placeholder
         run: mkdir -p internal/webui/dist && echo '<!doctype html><title>dooprint</title>' > internal/webui/dist/index.html
+
+      - name: Format
+        run: test -z "$(gofmt -l cmd internal)" || (gofmt -l cmd internal && exit 1)
 
       - name: Vet
         run: go vet ./...
@@ -46,3 +53,18 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+
+  installers:
+    name: Installer scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: bash -n packaging/linux/install.sh scripts/release.sh
+
+      - name: Inno Setup script compiles
+        run: |
+          mkdir -p dist out && chmod 777 out && head -c 1024 /dev/urandom > dist/dooprint.exe
+          docker run --rm -v "$PWD":/work:ro -v "$PWD/out":/out -w /work/packaging/windows amake/innosetup \
+            /Q /DAppVersion=0.0.0 /DBinary=../../dist/dooprint.exe /O/out dooprint.iss

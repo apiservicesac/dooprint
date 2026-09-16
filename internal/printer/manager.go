@@ -1,8 +1,8 @@
 package printer
 
 import (
-	"github.com/apiservicesac/dooprint/internal/logger"
 	"fmt"
+	"github.com/apiservicesac/dooprint/internal/logger"
 	"sync"
 )
 

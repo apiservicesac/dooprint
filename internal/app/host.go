@@ -5,8 +5,9 @@ import (
 	"runtime"
 )
 
-// Version is the device version reported to Odoo.
-const Version = "1.0"
+// Version is the device version reported to Odoo. Releases set it from the tag with
+// -ldflags "-X github.com/apiservicesac/dooprint/internal/app.Version=1.2.0".
+var Version = "1.0"
 
 func hostOS() string { return runtime.GOOS }
 

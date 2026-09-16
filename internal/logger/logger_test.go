@@ -12,7 +12,7 @@ import (
 )
 
 func TestInitLogger(t *testing.T) {
-	InitLogger()
+	InitLogger("")
 
 	dir := LogDirectory()
 	testutil.ExpectedTrue(t, dir != "", "Expected LogDirectory() to return non-empty directory")
