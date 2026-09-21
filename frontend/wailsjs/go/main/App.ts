@@ -9,16 +9,12 @@ export function Printers(): Promise<main.Printers> {
   return api<main.Printers>("/printers");
 }
 
-export function UpdateStatus(): Promise<main.UpdateStatus> {
-  return api<main.UpdateStatus>("/update");
+export function CheckUpdate(): Promise<main.Release> {
+  return api<main.Release>("/update/check", { method: "POST" });
 }
 
-export function CheckUpdate(): Promise<main.UpdateStatus> {
-  return api<main.UpdateStatus>("/update/check", { method: "POST" });
-}
-
-export function InstallUpdate(): Promise<main.UpdateStatus> {
-  return api<main.UpdateStatus>("/update/install", { method: "POST" });
+export function InstallUpdate(): Promise<main.Release> {
+  return api<main.Release>("/update/install", { method: "POST" });
 }
 
 export function GetTroubleshootInfo(): Promise<main.TroubleshootInfo> {

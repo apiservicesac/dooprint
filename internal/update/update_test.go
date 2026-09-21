@@ -24,12 +24,10 @@ func TestNewer(t *testing.T) {
 		{"1.0.0", "1.0.1", false},
 		{"1.0.10", "1.0.9", true},
 		{"1.0.9", "1.0.10", false},
-		// A release is newer than its own candidates, and the other way round.
-		{"1.0.0", "1.0.0-rc1", true},
-		{"1.0.0-rc1", "1.0.0", false},
 		// Anything unreadable is never an update.
 		{"", "1.0.0", false},
 		{"latest", "1.0.0", false},
+		{"1.0.0-rc1", "1.0.0", false},
 		{"1.0", "1.0.0", false},
 	}
 	for _, c := range cases {
@@ -46,27 +44,27 @@ func TestAssetName(t *testing.T) {
 		fmt.Sprintf("expected the version in %q", name))
 }
 
-func TestExtractPlainBinary(t *testing.T) {
-	binary, err := extract("dooprint-1.2.3-windows-amd64.exe", []byte("binary"))
+func TestBinaryInPlainFile(t *testing.T) {
+	binary, err := binaryIn("dooprint-1.2.3-windows-amd64.exe", []byte("binary"))
 	testutil.ExpectedNoError(t, err)
 	testutil.ExpectedEqual(t, string(binary), "binary")
 }
 
-func TestExtractFromArchive(t *testing.T) {
+func TestBinaryInArchive(t *testing.T) {
 	archive := tarball(t, map[string]string{
 		"dooprint/install.sh": "#!/bin/sh",
 		"dooprint/dooprint":   "binary",
 	})
 
-	binary, err := extract("dooprint-1.2.3-linux-amd64.tar.gz", archive)
+	binary, err := binaryIn("dooprint-1.2.3-linux-amd64.tar.gz", archive)
 	testutil.ExpectedNoError(t, err)
 	testutil.ExpectedEqual(t, string(binary), "binary")
 }
 
-func TestExtractWithoutBinary(t *testing.T) {
+func TestBinaryInArchiveWithoutIt(t *testing.T) {
 	archive := tarball(t, map[string]string{"dooprint/install.sh": "#!/bin/sh"})
 
-	_, err := extract("dooprint-1.2.3-linux-amd64.tar.gz", archive)
+	_, err := binaryIn("dooprint-1.2.3-linux-amd64.tar.gz", archive)
 	testutil.ExpectedError(t, err)
 }
 

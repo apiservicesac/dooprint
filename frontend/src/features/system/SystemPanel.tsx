@@ -21,7 +21,7 @@ const OS_ICONS = {
 export default function SystemPanel() {
   const { t } = useTranslation(['system', 'common'])
   const { app } = useContext(AppContext).data
-  const { status, checking } = useContext(UpdateContext).data
+  const { release, checking } = useContext(UpdateContext).data
   const { check } = useContext(UpdateContext).actions
   const { showToast } = useContext(ToastContext).actions
   const [info, setInfo] = useState<main.TroubleshootInfo | null>(null)
@@ -35,10 +35,8 @@ export default function SystemPanel() {
   // The device only looks for a new version when this button is pressed.
   const lookForUpdate = async () => {
     try {
-      const result = await check()
-      if (result?.error) {
-        showToast(result.error, 'danger')
-      } else if (!result?.available) {
+      const found = await check()
+      if (!found.newer) {
         showToast(t('update.upToDate'), 'success')
       }
     } catch (error) {
@@ -103,10 +101,9 @@ export default function SystemPanel() {
             [t('update.installed'), app?.version ?? ''],
             [
               t('update.latest'),
-              status?.latest ? (
-                <Badge variant={status.available ? 'warning' : 'success'}>
-                  {status.latest}
-                  {status.available ? ` · ${t('update.isNewer')}` : ` · ${t('update.upToDate')}`}
+              release ? (
+                <Badge variant={release.newer ? 'warning' : 'success'}>
+                  {release.latest} · {release.newer ? t('update.isNewer') : t('update.upToDate')}
                 </Badge>
               ) : (
                 <span className="text-muted-foreground">{t('update.unknown')}</span>

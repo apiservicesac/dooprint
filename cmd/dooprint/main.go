@@ -80,7 +80,7 @@ func run(port int, done <-chan struct{}) error {
 	update.CleanOld()
 
 	manager := printer.NewManager()
-	service := &app.Service{Config: cfg, Manager: manager, Port: port, Update: update.New(app.Version)}
+	service := &app.Service{Config: cfg, Manager: manager, Port: port}
 	service.Link = app.NewLink(service)
 	srv := server.New(port, manager, webui.Register(service, manager))
 	service.Running = srv.Running

@@ -1,15 +1,15 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { main } from "../../wailsjs/go/models";
-import { CheckUpdate, InstallUpdate, UpdateStatus } from "../../wailsjs/go/main/App";
+import { CheckUpdate, InstallUpdate } from "../../wailsjs/go/main/App";
 
 type UpdateContextType = {
   data: {
-    status: main.UpdateStatus | null;
+    release: main.Release | null;
     checking: boolean;
     installing: boolean;
   };
   actions: {
-    check: () => Promise<main.UpdateStatus | null>;
+    check: () => Promise<main.Release>;
     install: () => Promise<void>;
   };
 };
@@ -21,26 +21,20 @@ interface UpdateContextWrapper {
 }
 
 /**
- * Keeps what is known about updates. The device only asks GitHub when someone presses the
- * button, so on start this just reads the result of the last check of this run.
+ * Holds what the last check found, so the banner and the System tab show the same thing. The
+ * device asks GitHub only when check() is called, that is, when someone presses the button.
  */
 export const UpdateContextWrapper = ({ children }: UpdateContextWrapper) => {
-  const [status, setStatus] = useState<main.UpdateStatus | null>(null);
+  const [release, setRelease] = useState<main.Release | null>(null);
   const [checking, setChecking] = useState(false);
   const [installing, setInstalling] = useState(false);
-
-  useEffect(() => {
-    UpdateStatus()
-      .then(setStatus)
-      .catch((error) => console.error("Cannot read the update status", error));
-  }, []);
 
   const check = async () => {
     setChecking(true);
     try {
-      const result = await CheckUpdate();
-      setStatus(result);
-      return result;
+      const found = await CheckUpdate();
+      setRelease(found);
+      return found;
     } finally {
       setChecking(false);
     }
@@ -56,7 +50,7 @@ export const UpdateContextWrapper = ({ children }: UpdateContextWrapper) => {
   };
 
   return (
-    <UpdateContext.Provider value={{ data: { status, checking, installing }, actions: { check, install } }}>
+    <UpdateContext.Provider value={{ data: { release, checking, installing }, actions: { check, install } }}>
       {children}
     </UpdateContext.Provider>
   );

@@ -71,17 +71,19 @@ func Register(service *app.Service, manager *printer.Manager) func(fiber.Router)
 		})
 		// Updates: the device only looks for a new version when it is asked to, and only
 		// downloads one when the update is confirmed.
-		api.Get("/update", func(ctx fiber.Ctx) error {
-			return ctx.JSON(service.UpdateStatus())
-		})
 		api.Post("/update/check", func(ctx fiber.Ctx) error {
-			return ctx.JSON(service.CheckUpdate())
+			release, err := service.CheckUpdate()
+			if err != nil {
+				return fiber.NewError(http.StatusBadGateway, err.Error())
+			}
+			return ctx.JSON(release)
 		})
 		api.Post("/update/install", func(ctx fiber.Ctx) error {
-			if err := service.InstallUpdate(); err != nil {
-				return fiber.NewError(http.StatusBadRequest, err.Error())
+			release, err := service.InstallUpdate()
+			if err != nil {
+				return fiber.NewError(http.StatusBadGateway, err.Error())
 			}
-			return ctx.JSON(service.UpdateStatus())
+			return ctx.JSON(release)
 		})
 
 		api.Get("/troubleshoot", func(ctx fiber.Ctx) error {

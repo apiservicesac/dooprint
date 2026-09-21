@@ -45,14 +45,11 @@ export namespace main {
     failed: number;
   }
 
-  export interface UpdateStatus {
+  export interface Release {
     current: string;
-    latest?: string;
-    available: boolean;
+    latest: string;
+    newer: boolean;
     notes?: string;
-    checkedAt?: string;
-    error?: string;
-    supported: boolean;
   }
 
   export interface TroubleshootInfo {

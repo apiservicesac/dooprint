@@ -74,39 +74,25 @@ type Service struct {
 	Port    int
 	Running func() bool
 	Link    *Link
-	Update  *update.Checker
 }
 
-// UpdateStatus is the result of the last update check.
-func (s *Service) UpdateStatus() update.Status {
-	if s.Update == nil {
-		return update.Status{Current: Version}
-	}
-	return s.Update.Status()
-}
-
-// CheckUpdate asks GitHub for the latest release.
-func (s *Service) CheckUpdate() update.Status {
-	if s.Update == nil {
-		return update.Status{Current: Version}
-	}
-	return s.Update.Check()
+// CheckUpdate is which version is published, next to the running one.
+func (s *Service) CheckUpdate() (update.Release, error) {
+	return update.Latest(Version)
 }
 
 // InstallUpdate puts the latest release in place and restarts the service, which is what makes
-// the new version run. The restart happens after the answer reaches the browser.
-func (s *Service) InstallUpdate() error {
-	if s.Update == nil {
-		return fmt.Errorf("updates are not available")
-	}
-	if err := s.Update.Install(); err != nil {
-		return err
+// the new version run. The restart waits for the answer to reach the browser.
+func (s *Service) InstallUpdate() (update.Release, error) {
+	release, err := update.Install(Version)
+	if err != nil {
+		return release, err
 	}
 	go func() {
 		time.Sleep(restartDelay)
 		Restart()
 	}()
-	return nil
+	return release, nil
 }
 
 // LinkStatus describes the Odoo link for the web interface.
