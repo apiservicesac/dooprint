@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Update from the web interface. **System &rsaquo; Update** looks for the latest published release
+  and, when there is a newer one, a strip on every tab installs it: the device downloads the
+  release for its system, checks it against the published `SHA256SUMS`, replaces the running
+  binary and restarts the service. It only looks when asked, and only downloads once the update
+  is confirmed.
+
 ## [1.0.1] - 2026-09-22
 
 ### Fixed

@@ -45,6 +45,16 @@ export namespace main {
     failed: number;
   }
 
+  export interface UpdateStatus {
+    current: string;
+    latest?: string;
+    available: boolean;
+    notes?: string;
+    checkedAt?: string;
+    error?: string;
+    supported: boolean;
+  }
+
   export interface TroubleshootInfo {
     activeFirewall: string;
     firewallZone: string;

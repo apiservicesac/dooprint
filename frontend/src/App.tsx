@@ -4,9 +4,11 @@ import { PlugZapIcon, PrinterIcon, ServerIcon } from 'lucide-react'
 import { AppContextWrapper } from '@/contexts/AppContext'
 import { PrinterContextWrapper } from '@/contexts/PrinterContext'
 import { ToastContextWrapper } from '@/contexts/ToastContext'
+import { UpdateContextWrapper } from '@/contexts/UpdateContext'
 import OdooPanel from '@/features/odoo/OdooPanel'
 import PrintersPanel from '@/features/printers/PrintersPanel'
 import SystemPanel from '@/features/system/SystemPanel'
+import UpdateBanner from '@/features/system/UpdateBanner'
 import AppShell, { type Tab } from '@/layout/AppShell'
 
 function App() {
@@ -29,11 +31,14 @@ function App() {
     <ToastContextWrapper>
       <AppContextWrapper>
         <PrinterContextWrapper>
-          <AppShell tabs={tabs} current={tab} onChange={changeTab}>
-            {tab === 'printers' && <PrintersPanel />}
-            {tab === 'odoo' && <OdooPanel />}
-            {tab === 'system' && <SystemPanel />}
-          </AppShell>
+          <UpdateContextWrapper>
+            <AppShell tabs={tabs} current={tab} onChange={changeTab}>
+              <UpdateBanner />
+              {tab === 'printers' && <PrintersPanel />}
+              {tab === 'odoo' && <OdooPanel />}
+              {tab === 'system' && <SystemPanel />}
+            </AppShell>
+          </UpdateContextWrapper>
         </PrinterContextWrapper>
       </AppContextWrapper>
     </ToastContextWrapper>

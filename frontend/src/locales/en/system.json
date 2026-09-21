@@ -17,6 +17,20 @@
     "zone": "Zone",
     "noFirewall": "none detected"
   },
+  "update": {
+    "title": "Update",
+    "description": "Looks for a newer published version and installs it on this device.",
+    "installed": "Installed",
+    "latest": "Published",
+    "unknown": "not checked",
+    "isNewer": "new version",
+    "upToDate": "up to date",
+    "check": "Check for updates",
+    "install": "Update",
+    "available": "Version {{version}} available",
+    "restarting": "Updated. The service restarts in a few seconds.",
+    "failed": "Could not update"
+  },
   "install": {
     "title": "Installation",
     "path": "Executable"

@@ -86,6 +86,19 @@ sudo ./install.sh --pair "https://odoo.example.com?token=...&db_name=..." --mode
 | `sudo ./install.sh --uninstall --purge` | Also delete the configuration and the user |
 | `journalctl -u dooprint -f` | Follow the logs |
 
+## Updating
+
+The web interface updates the device on its own. In **System › Update**, **Check for updates**
+asks GitHub for the latest published release; when there is a newer one, a strip appears on
+every tab with an **Update** button.
+
+The device then downloads the release for its system, checks it against the published
+`SHA256SUMS`, puts the new binary in place of the running one and restarts the service, which
+takes a few seconds. The configuration and the pairing with Odoo are untouched.
+
+Nothing is checked or downloaded unless someone presses the button. Running the installer of a
+newer version still works and does the same thing.
+
 ## Run without installing
 
 ```bash

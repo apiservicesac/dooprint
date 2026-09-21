@@ -23,6 +23,7 @@ import (
 	"github.com/apiservicesac/dooprint/internal/logger"
 	"github.com/apiservicesac/dooprint/internal/printer"
 	"github.com/apiservicesac/dooprint/internal/server"
+	"github.com/apiservicesac/dooprint/internal/update"
 	"github.com/apiservicesac/dooprint/internal/webui"
 )
 
@@ -75,8 +76,11 @@ func run(port int, done <-chan struct{}) error {
 		logger.Warnf("configuration not read: %v", err)
 	}
 
+	// A Windows update leaves the replaced executable behind; it can go now that it is not running.
+	update.CleanOld()
+
 	manager := printer.NewManager()
-	service := &app.Service{Config: cfg, Manager: manager, Port: port}
+	service := &app.Service{Config: cfg, Manager: manager, Port: port, Update: update.New(app.Version)}
 	service.Link = app.NewLink(service)
 	srv := server.New(port, manager, webui.Register(service, manager))
 	service.Running = srv.Running

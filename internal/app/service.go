@@ -5,11 +5,13 @@ package app
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/apiservicesac/dooprint/internal/agent"
 	"github.com/apiservicesac/dooprint/internal/config"
 	"github.com/apiservicesac/dooprint/internal/logger"
 	"github.com/apiservicesac/dooprint/internal/printer"
+	"github.com/apiservicesac/dooprint/internal/update"
 	"github.com/apiservicesac/dooprint/internal/util"
 )
 
@@ -55,12 +57,56 @@ type TroubleshootInfo struct {
 	ExecPath       string `json:"execPath"`
 }
 
+// restartDelay leaves the answer time to reach the browser before the process ends.
+const restartDelay = 1500 * time.Millisecond
+
+// Restart ends the process so it starts again with whatever binary is in place: systemd on
+// Linux and the service recovery on Windows bring it back. A non-zero code is what the Windows
+// service manager treats as a failure worth restarting.
+func Restart() {
+	logger.Infof("Restarting the service")
+	os.Exit(1)
+}
+
 type Service struct {
 	Config  *config.Manager
 	Manager *printer.Manager
 	Port    int
 	Running func() bool
 	Link    *Link
+	Update  *update.Checker
+}
+
+// UpdateStatus is the result of the last update check.
+func (s *Service) UpdateStatus() update.Status {
+	if s.Update == nil {
+		return update.Status{Current: Version}
+	}
+	return s.Update.Status()
+}
+
+// CheckUpdate asks GitHub for the latest release.
+func (s *Service) CheckUpdate() update.Status {
+	if s.Update == nil {
+		return update.Status{Current: Version}
+	}
+	return s.Update.Check()
+}
+
+// InstallUpdate puts the latest release in place and restarts the service, which is what makes
+// the new version run. The restart happens after the answer reaches the browser.
+func (s *Service) InstallUpdate() error {
+	if s.Update == nil {
+		return fmt.Errorf("updates are not available")
+	}
+	if err := s.Update.Install(); err != nil {
+		return err
+	}
+	go func() {
+		time.Sleep(restartDelay)
+		Restart()
+	}()
+	return nil
 }
 
 // LinkStatus describes the Odoo link for the web interface.

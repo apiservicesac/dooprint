@@ -17,6 +17,20 @@
     "zone": "Zona",
     "noFirewall": "ninguno detectado"
   },
+  "update": {
+    "title": "Actualización",
+    "description": "Busca una versión nueva publicada y la instala en este equipo.",
+    "installed": "Instalada",
+    "latest": "Publicada",
+    "unknown": "sin comprobar",
+    "isNewer": "hay versión nueva",
+    "upToDate": "al día",
+    "check": "Buscar actualizaciones",
+    "install": "Actualizar",
+    "available": "Versión {{version}} disponible",
+    "restarting": "Actualizado. El servicio se reinicia en unos segundos.",
+    "failed": "No se pudo actualizar"
+  },
   "install": {
     "title": "Instalación",
     "path": "Ejecutable"
