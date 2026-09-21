@@ -25,10 +25,11 @@ func NewLink(service *Service) *Link {
 	return &Link{service: service}
 }
 
-// Start runs the agent when the device is already paired in agent mode.
+// Start runs the agent when the device is already paired. It also runs in local mode, where
+// it only reports the device is alive and picks up its commands.
 func (l *Link) Start() {
 	link := l.service.Config.OdooLink()
-	if link.Token == "" || link.Mode != "agent" {
+	if link.Token == "" {
 		return
 	}
 	l.mu.Lock()
@@ -95,11 +96,7 @@ func (l *Link) Pair(pairing, name, mode string) error {
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if mode == "agent" {
-		l.startLocked(link)
-	} else {
-		l.stopLocked()
-	}
+	l.startLocked(link)
 	return nil
 }
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Local mode keeps the device online in Odoo. The agent stayed idle when the device was paired
+  in local mode, so Odoo only knew it was alive while someone had its form open and nothing
+  refreshed its printers. It now sends the same heartbeat as in agent mode, every 30 s, without
+  listening to the bus, and picks up the restart and rescan commands that used to wait forever.
+
 ## [1.0.0] - 2026-09-16
 
 ### Added

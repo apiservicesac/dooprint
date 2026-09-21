@@ -109,9 +109,16 @@ func (a *Agent) Status() Status {
 
 // Run serves Odoo until done is closed: the bus announces new jobs and the periodic heartbeat
 // keeps the device record up to date and acts as a fallback when the bus is down.
+//
+// In local mode Odoo sends the jobs itself, so there is no bus to listen to: the heartbeat is
+// what keeps the device online in Odoo, refreshes its printers and picks up its commands.
 func (a *Agent) Run(done <-chan struct{}) {
-	logger.Infof("Linked to %s (bus notifications, heartbeat every %s)", a.config.OdooURL, HeartbeatInterval)
-	go a.listenBus(done)
+	if a.local() {
+		logger.Infof("Linked to %s (local mode, heartbeat every %s)", a.config.OdooURL, HeartbeatInterval)
+	} else {
+		logger.Infof("Linked to %s (bus notifications, heartbeat every %s)", a.config.OdooURL, HeartbeatInterval)
+		go a.listenBus(done)
+	}
 
 	for {
 		a.heartbeat()
@@ -153,6 +160,11 @@ func Pair(odooURL, pairingToken string, box map[string]any, printers []map[strin
 	return reply.Token, nil
 }
 
+// local is true when Odoo reaches the device itself instead of the device calling for jobs.
+func (a *Agent) local() bool {
+	return a.config.Mode == "local"
+}
+
 func (a *Agent) heartbeat() {
 	var reply struct {
 		Name  string `json:"name"`
@@ -165,10 +177,12 @@ func (a *Agent) heartbeat() {
 		"printers": a.printers(),
 	}, &reply); err != nil {
 		a.fail(err.Error())
+		a.localLink("disconnected")
 		return
 	}
 	if reply.Error != "" {
 		a.fail(fmt.Sprintf("Odoo answered %q: check the pairing", reply.Error))
+		a.localLink("disconnected")
 		return
 	}
 	a.mu.Lock()
@@ -176,6 +190,15 @@ func (a *Agent) heartbeat() {
 	a.status.BoxName = reply.Name
 	a.status.LastPoll = time.Now()
 	a.mu.Unlock()
+	a.localLink("connected")
+}
+
+// localLink reports the state of the link in local mode, where the heartbeat takes the place
+// of the bus. In agent mode the bus reports its own state.
+func (a *Agent) localLink(state string) {
+	if a.local() {
+		a.setBusState(state)
+	}
 }
 
 func (a *Agent) boxInfo() map[string]any {
