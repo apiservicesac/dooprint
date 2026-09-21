@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-22
+
 ### Fixed
 - Local mode keeps the device online in Odoo. The agent stayed idle when the device was paired
   in local mode, so Odoo only knew it was alive while someone had its form open and nothing
@@ -27,5 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   USB permissions, optional pairing from the command line).
 - Makefile and release script; GitHub workflows that build, test and publish tagged releases.
 
-[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/apiservicesac/dooprint/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/apiservicesac/dooprint/releases/tag/v1.0.0
