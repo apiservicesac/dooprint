@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-22
+
 ### Added
 - Update from the web interface. **System &rsaquo; Update** looks for the latest published release
   and, when there is a newer one, a strip on every tab installs it: the device downloads the
@@ -36,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   USB permissions, optional pairing from the command line).
 - Makefile and release script; GitHub workflows that build, test and publish tagged releases.
 
-[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/apiservicesac/dooprint/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/apiservicesac/dooprint/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/apiservicesac/dooprint/releases/tag/v1.0.0
