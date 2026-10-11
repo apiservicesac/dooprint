@@ -111,6 +111,20 @@ func TestParseXML_ImageElement(t *testing.T) {
 	testutil.ExpectedBytesEqual(t, got, expected)
 }
 
+func TestParseXML_ImageElement_WrappedBase64(t *testing.T) {
+	bitmap := []byte{0xAA, 0x55}
+	b64 := base64.StdEncoding.EncodeToString(bitmap)
+	wrapped := b64[:2] + "\r\n\t" + b64[2:]
+
+	xml := `<epos-print>
+		<image width="8" height="2">` + wrapped + `</image>
+	</epos-print>`
+
+	got, err := ParseXML([]byte(xml))
+	testutil.ExpectedNoError(t, err)
+	testutil.ExpectedTrue(t, bytes.HasSuffix(got, bitmap), "Expected output to end with the bitmap")
+}
+
 func TestParseXML_ImageElement_Error(t *testing.T) {
 	xml := `<epos-print>
 		<image width="8" height="2">invalid-base64!</image>

@@ -59,7 +59,7 @@ func ParseXML(body []byte) ([]byte, error) {
 				Width:  parseInt(attrs["width"], 0),
 				Height: parseInt(attrs["height"], 0),
 			}
-			imgCmd, err := BuildImage(strings.TrimSpace(item.Content), imgAttrs)
+			imgCmd, err := BuildImage(cleanBase64(item.Content), imgAttrs)
 			if err != nil {
 				return nil, fmt.Errorf("image element: %w", err)
 			}
@@ -97,6 +97,12 @@ func clamp(v, lo, hi int) int {
 		return hi
 	}
 	return v
+}
+
+// cleanBase64 drops the whitespace some clients put inside the image data, such as line breaks
+// every 76 characters.
+func cleanBase64(s string) string {
+	return strings.Join(strings.Fields(s), "")
 }
 
 func boolPtr(m map[string]string, key string) *bool {

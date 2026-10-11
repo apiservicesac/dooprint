@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Posiflex (`0d3a:0379`) and Rugtek (`0fe6:811e`) USB printers are recognised as receipt printers.
+
+### Fixed
+- The paper cut feeds a line first, so a last line without a line break still prints before the cut.
+- Images whose base64 data comes with line breaks or tabs print instead of failing.
+
 ## [1.1.0] - 2026-09-22
 
 ### Added

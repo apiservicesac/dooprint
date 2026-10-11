@@ -20,6 +20,8 @@ func TestGetPrinterType(t *testing.T) {
 		{"0483:5720", TypeReceipt},
 		{"2d84:c7c8", TypeReceipt},
 		{"4b43:3830", TypeReceipt},
+		{"0d3a:0379", TypeReceipt},
+		{"0fe6:811e", TypeReceipt},
 
 		// Known label printers
 		{"0a5f:0187", TypeLabel},
