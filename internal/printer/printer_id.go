@@ -99,3 +99,15 @@ func DecodeLANPrinterID(id string) (string, bool) {
 
 	return string(decoded[2:]), true
 }
+
+func EncodeSpoolerPrinterID(name string) string {
+	return base64.RawURLEncoding.EncodeToString([]byte("w:" + name))
+}
+
+func DecodeSpoolerPrinterID(id string) (string, bool) {
+	decoded, err := base64.RawURLEncoding.DecodeString(id)
+	if err != nil || len(decoded) < 3 || decoded[0] != 'w' || decoded[1] != ':' {
+		return "", false
+	}
+	return string(decoded[2:]), true
+}

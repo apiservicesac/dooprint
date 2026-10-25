@@ -2,6 +2,7 @@ package printer
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apiservicesac/dooprint/internal/logger"
 
@@ -68,7 +69,9 @@ func ListUSBPrinters() (*Printers, error) {
 
 	if !usbCache.HasChanged(keys) && !usbCache.HasUnavailable() {
 		logger.Debugf("USB unchanged → using cache")
-		return &Printers{Available: usbCache.Get()}, nil
+		cached := &Printers{Available: usbCache.Get()}
+		addSpoolerPrinters(cached)
+		return cached, nil
 	}
 
 	logger.Debugf("USB changed → rescanning devices")
@@ -101,7 +104,9 @@ func ListUSBPrinters() (*Printers, error) {
 		}
 	}
 
-	usbCache.Update(keys, result.Available, result.Unavailable)
+	libusbAvailable := result.Available
+	addSpoolerPrinters(result)
+	usbCache.Update(keys, libusbAvailable, result.Unavailable)
 	return result, nil
 }
 
@@ -212,4 +217,36 @@ func matchBulkOutEndpoint(alt gousb.InterfaceSetting) (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// addSpoolerPrinters adds the printers installed in Windows on a USB port.
+// libusb cannot open a device bound to the stock usbprint driver, so those
+// are printed through the spooler instead and no longer reported as failed.
+func addSpoolerPrinters(result *Printers) {
+	names, err := listSpoolerUSBPrinters()
+	if err != nil {
+		logger.Warnf("Windows spooler listing failed: %v", err)
+		return
+	}
+	if len(names) == 0 {
+		return
+	}
+	for _, name := range names {
+		result.Available = append(result.Available, Info{
+			Id:   EncodeSpoolerPrinterID(name),
+			Name: name,
+			Type: TypeReceipt,
+		})
+	}
+	result.Unavailable = withoutUnsupported(result.Unavailable)
+}
+
+func withoutUnsupported(devices []UnavailableInfo) []UnavailableInfo {
+	remaining := make([]UnavailableInfo, 0, len(devices))
+	for _, device := range devices {
+		if !strings.Contains(device.Error, "not supported") {
+			remaining = append(remaining, device)
+		}
+	}
+	return remaining
 }

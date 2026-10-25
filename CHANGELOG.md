@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- On Windows, USB receipt printers installed with the stock Windows driver (`usbprint`) no longer fail
+  with `libusb: not supported [code -12]`. They are listed from the installed printers and printed
+  through the Windows print spooler as raw data, so no WinUSB driver (Zadig) is needed.
+
 ## [1.1.1] - 2026-10-11
 
 ### Added
