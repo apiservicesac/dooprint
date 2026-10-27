@@ -20,5 +20,25 @@
     "submit": "Add",
     "invalidPaste": "The pasted address is not a valid IP",
     "invalid": "Type a valid IP"
-  }
+  },
+  "connection": {
+    "libusb": {
+      "name": "libusb",
+      "detail": "Direct connection to the USB device."
+    },
+    "spooler": {
+      "name": "Windows",
+      "detail": "Prints through the printer installed in Windows, in RAW mode."
+    },
+    "device": {
+      "name": "Direct USB",
+      "detail": "Prints straight to the Windows USB device, with no printer installed.",
+      "recommendation": "It works, but installing the printer in Windows is recommended (Settings › Printers & scanners › Add, port USB001, driver “Generic / Text Only”). Windows then handles the queue and paper or connection errors."
+    },
+    "network": {
+      "name": "Network",
+      "detail": "Connection by IP on port 9100."
+    }
+  },
+  "refresh": "Refresh"
 }

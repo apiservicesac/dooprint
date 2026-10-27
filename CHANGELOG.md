@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Each printer shows how it is reached (libusb, Windows, direct USB or network). A printer that works
+  without being installed in Windows shows a recommendation to install it.
+- **Refresh** button in the printers list.
+
+### Fixed
+- On Windows, a USB printer that Windows never installed (only "USB Printing Support" in Devices) is
+  now printed to directly through its usbprint device, instead of failing with `libusb: not supported`.
+- Printing through a Windows printer opens its document per ticket, so none is left open in the queue.
+
 ## [1.1.3] - 2026-10-24
 
 ## [1.1.2] - 2026-10-24

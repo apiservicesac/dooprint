@@ -23,6 +23,8 @@ type Printer struct {
 	LANIp  string `json:"lanIp,omitempty"`
 	Online bool   `json:"online"`
 	Type   string `json:"type"`
+	// Connection is how the printer is reached: libusb, spooler, device or network.
+	Connection string `json:"connection"`
 }
 
 type UnavailablePrinter struct {
@@ -141,11 +143,12 @@ func (s *Service) Printers() Printers {
 	} else {
 		for _, info := range usb.Available {
 			printers = append(printers, Printer{
-				Id:     info.Id,
-				Name:   info.Name,
-				Ip:     s.PrinterURL(info.Id),
-				Online: true,
-				Type:   string(info.Type),
+				Id:         info.Id,
+				Name:       info.Name,
+				Ip:         s.PrinterURL(info.Id),
+				Online:     true,
+				Type:       string(info.Type),
+				Connection: string(info.Connection),
 			})
 		}
 		for _, info := range usb.Unavailable {
@@ -155,12 +158,13 @@ func (s *Service) Printers() Printers {
 
 	for _, info := range printer.ListLANPrinters(s.Config) {
 		printers = append(printers, Printer{
-			Id:    info.Id,
-			Name:  fmt.Sprintf("Network - %s", info.IP),
-			Ip:    s.PrinterURL(info.Id),
-			IsLAN: true,
-			LANIp: info.IP,
-			Type:  string(printer.TypeReceipt),
+			Id:         info.Id,
+			Name:       fmt.Sprintf("Network - %s", info.IP),
+			Ip:         s.PrinterURL(info.Id),
+			IsLAN:      true,
+			LANIp:      info.IP,
+			Type:       string(printer.TypeReceipt),
+			Connection: "network",
 		})
 	}
 

@@ -20,6 +20,7 @@ const (
 	ConnKindUSB ConnKind = iota
 	ConnKindLAN
 	ConnKindSpooler
+	ConnKindDevice
 )
 
 const (
@@ -52,6 +53,7 @@ type Printer struct {
 	id             *ID
 	lanIP          string
 	spoolerName    string
+	devicePath     string
 	mu             sync.Mutex
 	// USB fields
 	usbCtx      *gousb.Context
@@ -59,8 +61,6 @@ type Printer struct {
 	config      *gousb.Config
 	iFace       *gousb.Interface
 	outEndpoint *gousb.OutEndpoint
-	// Windows spooler fields
-	spoolerJob *spoolerJob
 	// LAN fields
 	tcpConn net.Conn
 	jobs    chan Job
@@ -82,6 +82,16 @@ func newPrinter(id string) *Printer {
 		p := &Printer{
 			connectionType: ConnKindSpooler,
 			spoolerName:    spoolerName,
+			jobs:           make(chan Job, QueueSize),
+		}
+		go p.loop()
+		return p
+	}
+
+	if devicePath, ok := DecodeDevicePrinterID(id); ok {
+		p := &Printer{
+			connectionType: ConnKindDevice,
+			devicePath:     devicePath,
 			jobs:           make(chan Job, QueueSize),
 		}
 		go p.loop()
@@ -140,9 +150,15 @@ func (p *Printer) Write(data []byte) error {
 	}
 
 	if p.connectionType == ConnKindSpooler {
-		if err := p.spoolerJob.write(data); err != nil {
-			p.closeDeviceLocked()
+		if err := writeToSpooler(p.spoolerName, data); err != nil {
 			return fmt.Errorf("failed to write to Windows printer %s: %w", p.idToString(), err)
+		}
+		return nil
+	}
+
+	if p.connectionType == ConnKindDevice {
+		if err := writeToDevice(p.devicePath, data); err != nil {
+			return fmt.Errorf("failed to write to USB printer %s: %w", p.idToString(), err)
 		}
 		return nil
 	}
@@ -183,23 +199,10 @@ func (p *Printer) ensureOpen() error {
 	if p.connectionType == ConnKindLAN {
 		return p.ensureOpenLANLocked()
 	}
-	if p.connectionType == ConnKindSpooler {
-		return p.ensureOpenSpoolerLocked()
+	if p.connectionType == ConnKindSpooler || p.connectionType == ConnKindDevice {
+		return nil // opened per job, so nothing stays held between prints
 	}
 	return p.ensureOpenUSBLocked()
-}
-
-func (p *Printer) ensureOpenSpoolerLocked() error {
-	if p.spoolerJob != nil {
-		return nil
-	}
-	job, err := openSpoolerJob(p.spoolerName)
-	if err != nil {
-		logger.Errorf("Failed to open Windows printer %s: %v", p.idToString(), err)
-		return err
-	}
-	p.spoolerJob = job
-	return nil
 }
 
 func (p *Printer) ensureOpenLANLocked() error {
@@ -348,11 +351,7 @@ func (p *Printer) closeDeviceLocked() {
 		return
 	}
 
-	if p.connectionType == ConnKindSpooler {
-		if p.spoolerJob != nil {
-			p.spoolerJob.close()
-			p.spoolerJob = nil
-		}
+	if p.connectionType == ConnKindSpooler || p.connectionType == ConnKindDevice {
 		return
 	}
 
@@ -378,6 +377,9 @@ func (p *Printer) idToString() string {
 	}
 	if p.connectionType == ConnKindSpooler {
 		return fmt.Sprintf("Windows:%s", p.spoolerName)
+	}
+	if p.connectionType == ConnKindDevice {
+		return fmt.Sprintf("USBPRINT:%s", p.devicePath)
 	}
 	if p.id != nil {
 		return fmt.Sprintf("USB:%s, %v", p.id.Serial, p.id)

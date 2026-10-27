@@ -104,6 +104,18 @@ func EncodeSpoolerPrinterID(name string) string {
 	return base64.RawURLEncoding.EncodeToString([]byte("w:" + name))
 }
 
+func EncodeDevicePrinterID(path string) string {
+	return base64.RawURLEncoding.EncodeToString([]byte("d:" + path))
+}
+
+func DecodeDevicePrinterID(id string) (string, bool) {
+	decoded, err := base64.RawURLEncoding.DecodeString(id)
+	if err != nil || len(decoded) < 3 || decoded[0] != 'd' || decoded[1] != ':' {
+		return "", false
+	}
+	return string(decoded[2:]), true
+}
+
 func DecodeSpoolerPrinterID(id string) (string, bool) {
 	decoded, err := base64.RawURLEncoding.DecodeString(id)
 	if err != nil || len(decoded) < 3 || decoded[0] != 'w' || decoded[1] != ':' {

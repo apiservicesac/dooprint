@@ -24,3 +24,24 @@ func TestWithoutUnsupportedKeepsOtherErrors(t *testing.T) {
 		t.Fatalf("got %v", kept)
 	}
 }
+
+func TestDevicePrinterIDRoundTrip(t *testing.T) {
+	path := `\\?\usb#vid_0456&pid_0808#5&1a2b3c#{28d78fad-5a12-11d1-ae5b-0000f803a8c2}`
+	decoded, ok := DecodeDevicePrinterID(EncodeDevicePrinterID(path))
+	if !ok || decoded != path {
+		t.Fatalf("got %q, %v", decoded, ok)
+	}
+}
+
+func TestDevicePrinterIDRejectsOtherKinds(t *testing.T) {
+	if _, ok := DecodeDevicePrinterID(EncodeSpoolerPrinterID("x")); ok {
+		t.Fatal("a spooler id must not decode as a device id")
+	}
+}
+
+func TestVidPidInPath(t *testing.T) {
+	match := vidPidInPath.FindStringSubmatch(`\\?\usb#vid_0456&pid_0808#5&1a2b3c#{guid}`)
+	if match == nil || match[1] != "0456" || match[2] != "0808" {
+		t.Fatalf("got %v", match)
+	}
+}

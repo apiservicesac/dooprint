@@ -31,6 +31,7 @@ type PrinterContextType = {
   actions: {
     removeLanPrinter: (printer: main.Printer) => Promise<ActionStatus>;
     addLanPrinter: (ip: string) => Promise<ActionStatus>;
+    refreshPrinters: () => Promise<void>;
   };
 };
 
@@ -219,6 +220,7 @@ export const PrinterContextWrapper = ({ children }: PrinterContextWrapper) => {
   const actions = {
     removeLanPrinter,
     addLanPrinter,
+    refreshPrinters: () => checkAppStatus(true),
   };
   const data = {
     printers: printers,

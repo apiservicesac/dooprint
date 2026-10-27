@@ -4,20 +4,20 @@ package printer
 
 import "errors"
 
-var errSpoolerUnsupported = errors.New("the Windows print spooler is only available on Windows")
-
-type spoolerJob struct{}
+var errWindowsOnly = errors.New("only available on Windows")
 
 func listSpoolerUSBPrinters() ([]string, error) {
 	return nil, nil
 }
 
-func openSpoolerJob(string) (*spoolerJob, error) {
-	return nil, errSpoolerUnsupported
+func writeToSpooler(string, []byte) error {
+	return errWindowsOnly
 }
 
-func (j *spoolerJob) write([]byte) error {
-	return errSpoolerUnsupported
+func listUSBPrintDevices() ([]string, error) {
+	return nil, nil
 }
 
-func (j *spoolerJob) close() {}
+func writeToDevice(string, []byte) error {
+	return errWindowsOnly
+}

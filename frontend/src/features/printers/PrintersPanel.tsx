@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, RefreshCwIcon } from 'lucide-react'
 import NetworkIpDialog from '@/components/NetworkIpDialog'
 import { PrinterContext } from '@/contexts/PrinterContext'
 import Button from '@/components/ui/button'
@@ -10,7 +10,9 @@ import PrinterRow from './PrinterRow'
 
 export default function PrintersPanel() {
   const { t } = useTranslation('printers')
-  const { printers, lanStatus, fetchError } = useContext(PrinterContext).data
+  const printerContext = useContext(PrinterContext)
+  const { printers, lanStatus, fetchError } = printerContext.data
+  const [refreshing, setRefreshing] = useState(false)
   const [addOpen, setAddOpen] = useState(0)
 
   const errorMessage = fetchError ?? printers?.errorMsg
@@ -22,12 +24,30 @@ export default function PrintersPanel() {
     </Button>
   )
 
+  async function onRefresh() {
+    setRefreshing(true)
+    try {
+      await printerContext.actions.refreshPrinters()
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const actions = (
+    <div className="flex gap-3">
+      <Button variant="outline" onClick={onRefresh} loading={refreshing} icon={<RefreshCwIcon size={14} />}>
+        {t('refresh')}
+      </Button>
+      {addButton}
+    </div>
+  )
+
   return (
     <>
       <Section
         title={t('title')}
         description={t('description')}
-        actions={addButton}
+        actions={actions}
       >
         {!printers && !fetchError && <p className="py-6 text-[15px] text-muted-foreground">{t('searching')}</p>}
 

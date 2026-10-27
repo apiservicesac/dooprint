@@ -8,6 +8,7 @@ export namespace main {
     lanIp?: string;
     online: boolean;
     type: string;
+    connection: string;
   }
 
   export interface UnavailablePrinter {

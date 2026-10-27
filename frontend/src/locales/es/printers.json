@@ -20,5 +20,25 @@
     "submit": "Agregar",
     "invalidPaste": "La dirección pegada no es una IP válida",
     "invalid": "Escribe una IP válida"
-  }
+  },
+  "connection": {
+    "libusb": {
+      "name": "libusb",
+      "detail": "Conexión directa al dispositivo USB."
+    },
+    "spooler": {
+      "name": "Windows",
+      "detail": "Imprime por la impresora instalada en Windows, en modo RAW."
+    },
+    "device": {
+      "name": "USB directo",
+      "detail": "Imprime directo al dispositivo USB de Windows, sin impresora instalada.",
+      "recommendation": "Funciona, pero se recomienda instalar la ticketera en Windows (Configuración › Impresoras y escáneres › Agregar, puerto USB001, driver «Generic / Text Only»). Así Windows maneja la cola y los errores de papel o conexión."
+    },
+    "network": {
+      "name": "Red",
+      "detail": "Conexión por IP al puerto 9100."
+    }
+  },
+  "refresh": "Actualizar"
 }

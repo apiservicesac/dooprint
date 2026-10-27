@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckIcon, CopyIcon, NetworkIcon, PrinterIcon, Trash2Icon, UsbIcon } from 'lucide-react'
+import { CheckIcon, CopyIcon, NetworkIcon, PrinterIcon, Trash2Icon, TriangleAlertIcon, UsbIcon } from 'lucide-react'
 import { main } from '@/../wailsjs/go/models'
 import { PrinterContext } from '@/contexts/PrinterContext'
 import { ToastContext } from '@/contexts/ToastContext'
@@ -65,9 +65,19 @@ export default function PrinterRow({ printer, status }: PrinterRowProps) {
               {printer.isLAN ? <NetworkIcon size={12} /> : <UsbIcon size={12} />}
               {printer.isLAN ? t('type.lan') : t('type.usb')}
             </Badge>
+            {printer.connection && <Badge variant="muted">{t(`connection.${printer.connection}.name`)}</Badge>}
             {printer.type === 'label' && <Badge variant="muted">{t('type.label')}</Badge>}
           </div>
           <p className="mt-2 break-all text-sm tabular-nums text-muted-foreground">{printer.ip}</p>
+          {printer.connection && (
+            <p className="mt-2 text-sm text-muted-foreground">{t(`connection.${printer.connection}.detail`)}</p>
+          )}
+          {printer.connection === 'device' && (
+            <p className="mt-3 flex items-start gap-2 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+              <TriangleAlertIcon size={14} className="mt-0.5 shrink-0" />
+              {t('connection.device.recommendation')}
+            </p>
+          )}
         </div>
         <StatusDot tone={tone} label={label} />
       </div>

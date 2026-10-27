@@ -4,6 +4,7 @@ package printer
 
 import (
 	"fmt"
+	"github.com/apiservicesac/dooprint/internal/logger"
 	"strings"
 	"syscall"
 	"unsafe"
@@ -26,8 +27,6 @@ var (
 	procClosePrinter = winspool.NewProc("ClosePrinter")
 	procStartDoc     = winspool.NewProc("StartDocPrinterW")
 	procEndDoc       = winspool.NewProc("EndDocPrinter")
-	procStartPage    = winspool.NewProc("StartPagePrinter")
-	procEndPage      = winspool.NewProc("EndPagePrinter")
 	procWritePrinter = winspool.NewProc("WritePrinter")
 )
 
@@ -43,11 +42,6 @@ type documentInfo struct {
 	DocName    *uint16
 	OutputFile *uint16
 	Datatype   *uint16
-}
-
-// spoolerJob is one RAW document sent to a printer installed in Windows.
-type spoolerJob struct {
-	handle syscall.Handle
 }
 
 // listSpoolerUSBPrinters returns the names of the Windows printers
@@ -72,9 +66,11 @@ func listSpoolerUSBPrinters() ([]string, error) {
 	entries := unsafe.Slice((*printerInfoPorts)(unsafe.Pointer(&buffer[0])), returned)
 	names := make([]string, 0, returned)
 	for _, entry := range entries {
+		name := syscall.UTF16ToString(utf16Slice(entry.PrinterName))
 		port := syscall.UTF16ToString(utf16Slice(entry.PortName))
+		logger.Infof("Windows printer %q on port %q", name, port)
 		if strings.HasPrefix(strings.ToUpper(port), usbPortPrefix) {
-			names = append(names, syscall.UTF16ToString(utf16Slice(entry.PrinterName)))
+			names = append(names, name)
 		}
 	}
 	return names, nil
@@ -93,55 +89,37 @@ func utf16Slice(start *uint16) []uint16 {
 	return unsafe.Slice(start, length+1)
 }
 
-func openSpoolerJob(printerName string) (*spoolerJob, error) {
+// writeToSpooler sends data to a Windows printer as a single RAW document,
+// so the ESC/POS bytes reach the printer exactly as they are.
+func writeToSpooler(printerName string, data []byte) error {
 	name, err := syscall.UTF16PtrFromString(printerName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var handle syscall.Handle
 	result, _, callErr := procOpenPrinter.Call(uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(&handle)), 0)
 	if result == 0 {
-		return nil, fmt.Errorf("failed to open Windows printer %q: %w", printerName, callErr)
+		return fmt.Errorf("failed to open Windows printer %q: %w", printerName, callErr)
 	}
+	defer procClosePrinter.Call(uintptr(handle))
 
-	job := &spoolerJob{handle: handle}
 	docName, _ := syscall.UTF16PtrFromString(documentName)
 	datatype, _ := syscall.UTF16PtrFromString(rawDatatype)
 	info := documentInfo{DocName: docName, Datatype: datatype}
 	result, _, callErr = procStartDoc.Call(uintptr(handle), documentInfoLevel, uintptr(unsafe.Pointer(&info)))
 	if result == 0 {
-		job.release()
-		return nil, fmt.Errorf("failed to start print document on %q: %w", printerName, callErr)
+		return fmt.Errorf("failed to start print document on %q: %w", printerName, callErr)
 	}
-	result, _, callErr = procStartPage.Call(uintptr(handle))
-	if result == 0 {
-		procEndDoc.Call(uintptr(handle))
-		job.release()
-		return nil, fmt.Errorf("failed to start print page on %q: %w", printerName, callErr)
-	}
-	return job, nil
-}
+	defer procEndDoc.Call(uintptr(handle))
 
-func (j *spoolerJob) write(data []byte) error {
 	for len(data) > 0 {
 		var written uint32
-		result, _, err := procWritePrinter.Call(uintptr(j.handle),
+		result, _, callErr = procWritePrinter.Call(uintptr(handle),
 			uintptr(unsafe.Pointer(&data[0])), uintptr(len(data)), uintptr(unsafe.Pointer(&written)))
 		if result == 0 {
-			return fmt.Errorf("failed to write to Windows printer: %w", err)
+			return fmt.Errorf("failed to write to Windows printer %q: %w", printerName, callErr)
 		}
 		data = data[written:]
 	}
 	return nil
-}
-
-// close finishes the document so the spooler sends it to the printer.
-func (j *spoolerJob) close() {
-	procEndPage.Call(uintptr(j.handle))
-	procEndDoc.Call(uintptr(j.handle))
-	j.release()
-}
-
-func (j *spoolerJob) release() {
-	procClosePrinter.Call(uintptr(j.handle))
 }

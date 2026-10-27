@@ -2,6 +2,7 @@ package printer
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/apiservicesac/dooprint/internal/logger"
@@ -9,11 +10,21 @@ import (
 	"github.com/google/gousb"
 )
 
+// Connection is the way dooprint talks to a USB printer.
+type Connection string
+
+const (
+	ConnectionLibusb  Connection = "libusb"  // straight to the device, needs a WinUSB or Linux/macOS driver
+	ConnectionSpooler Connection = "spooler" // through a printer installed in Windows
+	ConnectionDevice  Connection = "device"  // straight to the Windows usbprint device, no printer installed
+)
+
 // Info describes a USB printer that was successfully probed.
 type Info struct {
-	Id   string
-	Name string
-	Type Type
+	Id         string
+	Name       string
+	Type       Type
+	Connection Connection
 }
 
 // UnavailableInfo describes a device that looks like a printer but could
@@ -70,7 +81,7 @@ func ListUSBPrinters() (*Printers, error) {
 	if !usbCache.HasChanged(keys) && !usbCache.HasUnavailable() {
 		logger.Debugf("USB unchanged → using cache")
 		cached := &Printers{Available: usbCache.Get()}
-		addSpoolerPrinters(cached)
+		addWindowsPrinters(cached)
 		return cached, nil
 	}
 
@@ -97,15 +108,16 @@ func ListUSBPrinters() (*Printers, error) {
 				continue
 			}
 			result.Available = append(result.Available, Info{
-				Id:   id,
-				Name: info.Name,
-				Type: getPrinterType(info.VidPid),
+				Id:         id,
+				Name:       info.Name,
+				Type:       getPrinterType(info.VidPid),
+				Connection: ConnectionLibusb,
 			})
 		}
 	}
 
 	libusbAvailable := result.Available
-	addSpoolerPrinters(result)
+	addWindowsPrinters(result)
 	usbCache.Update(keys, libusbAvailable, result.Unavailable)
 	return result, nil
 }
@@ -219,26 +231,56 @@ func matchBulkOutEndpoint(alt gousb.InterfaceSetting) (int, bool) {
 	return 0, false
 }
 
-// addSpoolerPrinters adds the printers installed in Windows on a USB port.
-// libusb cannot open a device bound to the stock usbprint driver, so those
-// are printed through the spooler instead and no longer reported as failed.
-func addSpoolerPrinters(result *Printers) {
+// addWindowsPrinters adds the USB printers libusb cannot open because Windows
+// binds them to its stock usbprint driver. Those print through the Windows
+// printer when one is installed, and straight to the usbprint device when
+// Windows never created one.
+func addWindowsPrinters(result *Printers) {
 	names, err := listSpoolerUSBPrinters()
 	if err != nil {
 		logger.Warnf("Windows spooler listing failed: %v", err)
-		return
-	}
-	if len(names) == 0 {
-		return
 	}
 	for _, name := range names {
 		result.Available = append(result.Available, Info{
-			Id:   EncodeSpoolerPrinterID(name),
-			Name: name,
-			Type: TypeReceipt,
+			Id:         EncodeSpoolerPrinterID(name),
+			Name:       name,
+			Type:       TypeReceipt,
+			Connection: ConnectionSpooler,
 		})
 	}
-	result.Unavailable = withoutUnsupported(result.Unavailable)
+
+	added := len(names)
+	if added == 0 {
+		added = addUSBPrintDevices(result)
+	}
+	if added > 0 {
+		result.Unavailable = withoutUnsupported(result.Unavailable)
+	}
+}
+
+var vidPidInPath = regexp.MustCompile(`(?i)vid_([0-9a-f]{4})&pid_([0-9a-f]{4})`)
+
+// addUSBPrintDevices adds each connected usbprint device and returns how many.
+func addUSBPrintDevices(result *Printers) int {
+	paths, err := listUSBPrintDevices()
+	if err != nil {
+		logger.Warnf("USB printer device listing failed: %v", err)
+		return 0
+	}
+	for _, path := range paths {
+		logger.Infof("USB printer device %s", path)
+		name := "USB printer"
+		if match := vidPidInPath.FindStringSubmatch(path); match != nil {
+			name = getPrinterFriendlyName(strings.ToUpper(match[1]), strings.ToUpper(match[2]))
+		}
+		result.Available = append(result.Available, Info{
+			Id:         EncodeDevicePrinterID(path),
+			Name:       name,
+			Type:       TypeReceipt,
+			Connection: ConnectionDevice,
+		})
+	}
+	return len(paths)
 }
 
 func withoutUnsupported(devices []UnavailableInfo) []UnavailableInfo {
