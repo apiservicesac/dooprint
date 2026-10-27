@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-10-27
+
 ### Added
 - Each printer shows how it is reached (libusb, Windows, direct USB or network). A printer that works
   without being installed in Windows shows a recommendation to install it.
@@ -66,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   USB permissions, optional pairing from the command line).
 - Makefile and release script; GitHub workflows that build, test and publish tagged releases.
 
-[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/apiservicesac/dooprint/compare/v1.1.4...HEAD
+[1.1.4]: https://github.com/apiservicesac/dooprint/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/apiservicesac/dooprint/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/apiservicesac/dooprint/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/apiservicesac/dooprint/compare/v1.1.0...v1.1.1
